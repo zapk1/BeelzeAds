@@ -1,0 +1,2854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>BeelzeAds</title>
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="https://media.base44.com/images/public/69aeee89baab381c29ae8d31/bb2a57956_Screenshot_20260406_015157_Gallery.jpg" type="image/png">
+<link rel="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --bg: #f2f2f7;
+  --surface: #ffffff;
+  --surface2: #f2f2f7;
+  --border: rgba(0,0,0,0.08);
+  --text: #000000;
+  --text2: #6e6e73;
+  --text3: #aeaeb2;
+  --accent: #6366f1;
+  --accent2: #8b5cf6;
+  --green: #30d158;
+  --red: #ff3b30;
+  --orange: #ff9f0a;
+  --blue: #0a84ff;
+  --radius: 16px;
+  --radius-sm: 12px;
+  --shadow: 0 2px 20px rgba(0,0,0,0.06);
+  --shadow-md: 0 8px 40px rgba(0,0,0,0.12);
+}
+
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  overscroll-behavior: none;
+}
+
+/* ─── SPLASH ─── */
+#splash {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #000;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 20px;
+}
+.splash-logo {
+  width: 88px; height: 88px; border-radius: 26px;
+  background: linear-gradient(145deg, #6366f1, #8b5cf6);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 60px rgba(99,102,241,0.6);
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+@keyframes pulseGlow {
+  0%,100% { box-shadow: 0 0 40px rgba(99,102,241,0.4); }
+  50% { box-shadow: 0 0 80px rgba(99,102,241,0.8); }
+}
+.splash-logo svg { width:44px; height:44px; color:#fff; }
+.splash-title { font-size:2rem; font-weight:900; color:#fff; letter-spacing:-1px; }
+.splash-sub { font-size:0.82rem; color:#666; font-weight:500; letter-spacing:0.5px; text-transform:uppercase; }
+.splash-bar { width:180px; height:3px; background:#1c1c1e; border-radius:99px; overflow:hidden; margin-top:8px; }
+.splash-progress { height:100%; background:linear-gradient(90deg,#6366f1,#8b5cf6); border-radius:99px; animation:loadBar 2.2s ease forwards; }
+@keyframes loadBar { from{width:0%} to{width:100%} }
+
+/* ─── LOCK ─── */
+#lockScreen {
+  position: fixed; inset: 0; z-index: 9998;
+  background: #000;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center; gap: 28px;
+  padding: 40px 24px;
+}
+.lock-avatar {
+  width:80px; height:80px; border-radius:24px;
+  overflow:hidden; border:2px solid #222;
+  box-shadow:0 0 40px rgba(99,102,241,0.3);
+}
+.lock-avatar img { width:100%; height:100%; object-fit:cover; }
+.lock-name { text-align:center; }
+.lock-name h2 { font-size:1.5rem; font-weight:800; color:#fff; letter-spacing:-0.5px; }
+.lock-name p { font-size:0.78rem; color:#555; font-weight:500; margin-top:3px; }
+.lock-form { width:100%; max-width:340px; display:flex; flex-direction:column; gap:12px; }
+.lock-input-wrap { position:relative; }
+.lock-input-wrap input {
+  width:100%; background:#111; border:1.5px solid #222; color:#fff;
+  border-radius:14px; padding:14px 48px 14px 16px;
+  font-size:1rem; outline:none; font-family:'Inter',sans-serif;
+  transition:border 0.2s;
+}
+.lock-input-wrap input:focus { border-color:#6366f1; }
+.lock-input-wrap input::placeholder { color:#444; }
+.lock-eye { position:absolute; right:14px; top:50%; transform:translateY(-50%); cursor:pointer; color:#444; display:flex; }
+.lock-error { color:#ff453a; font-size:0.78rem; text-align:center; background:#2c1212; border:1px solid #5c1f1f; border-radius:10px; padding:8px; display:none; }
+.lock-btn {
+  background:linear-gradient(135deg,#6366f1,#8b5cf6);
+  color:#fff; border:none; border-radius:14px; padding:14px;
+  font-size:0.95rem; font-weight:700; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  box-shadow:0 4px 20px rgba(99,102,241,0.4);
+  font-family:'Inter',sans-serif;
+  transition:transform 0.1s,opacity 0.15s;
+}
+.lock-btn:active { transform:scale(0.98); opacity:0.9; }
+
+/* ─── APP SHELL ─── */
+#app { flex-direction:column; min-height:100vh; padding-bottom:90px; }
+
+/* ─── TOP BAR ─── */
+.topbar {
+  position:sticky; top:0; z-index:100;
+  background:rgba(242,242,247,0.85);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  padding:16px 20px 12px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.topbar-left h1 { font-size:1.6rem; font-weight:800; color:var(--text); letter-spacing:-0.5px; }
+.topbar-left p { font-size:0.75rem; color:var(--text2); font-weight:500; margin-top:1px; }
+.topbar-right { display:flex; align-items:center; gap:10px; }
+.topbar-avatar { width:34px; height:34px; border-radius:50%; overflow:hidden; border:2px solid #e5e7eb; }
+.topbar-avatar img { width:100%; height:100%; object-fit:cover; }
+.status-dot { width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); }
+
+/* ─── BOTTOM NAV ─── */
+.bottom-nav {
+  position:fixed; bottom:0; left:0; right:0; z-index:200;
+  background:rgba(255,255,255,0.9);
+  backdrop-filter:blur(30px);
+  -webkit-backdrop-filter:blur(30px);
+  border-top:1px solid var(--border);
+  display:flex; align-items:center;
+  padding:10px 0 max(10px, env(safe-area-inset-bottom));
+}
+.nav-item {
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+  cursor:pointer; padding:6px 4px;
+  transition:all 0.2s;
+}
+.nav-item svg { width:22px; height:22px; color:var(--text3); transition:all 0.2s; }
+.nav-item span { font-size:0.62rem; font-weight:600; color:var(--text3); transition:all 0.2s; letter-spacing:0.2px; }
+.nav-item.active svg { color:var(--accent); }
+.nav-item.active span { color:var(--accent); }
+.nav-item-dot { width:5px; height:5px; background:var(--accent); border-radius:50%; position:absolute; top:-3px; }
+
+/* ─── PAGES ─── */
+.page { display:none; padding:0 16px; animation:fadeUp 0.3s ease; }
+.page.active { display:block; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+/* ─── CARDS ─── */
+.card {
+  background:var(--surface);
+  border-radius:var(--radius);
+  padding:18px;
+  margin-bottom:12px;
+  box-shadow:var(--shadow);
+}
+.card-header {
+  font-size:0.7rem; font-weight:700; color:var(--text2);
+  text-transform:uppercase; letter-spacing:0.8px;
+  display:flex; align-items:center; gap:6px; margin-bottom:14px;
+}
+.card-header svg { width:13px; height:13px; color:var(--accent); }
+
+/* ─── STAT CARDS ─── */
+.stats-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+.stat-card {
+  background:var(--surface); border-radius:var(--radius-sm);
+  padding:16px; box-shadow:var(--shadow);
+}
+.stat-card .stat-label { font-size:0.7rem; color:var(--text2); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; }
+.stat-card .stat-value { font-size:1.6rem; font-weight:800; color:var(--text); letter-spacing:-0.5px; }
+.stat-card .stat-sub { font-size:0.72rem; color:var(--text3); font-weight:500; margin-top:3px; }
+.stat-card .stat-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:10px; }
+.stat-icon.purple { background:#ede9fe; }
+.stat-icon.green { background:#dcfce7; }
+.stat-icon.blue { background:#dbeafe; }
+.stat-icon.orange { background:#fff7ed; }
+.stat-icon svg { width:18px; height:18px; }
+.stat-icon.purple svg { color:#6366f1; }
+.stat-icon.green svg { color:#16a34a; }
+.stat-icon.blue svg { color:#2563eb; }
+.stat-icon.orange svg { color:#ea580c; }
+
+/* ─── INPUTS ─── */
+label { display:block; font-size:0.7rem; font-weight:700; color:var(--text2); margin-bottom:5px; text-transform:uppercase; letter-spacing:0.5px; }
+input, select, textarea {
+  width:100%; background:var(--bg);
+  border:1.5px solid transparent;
+  border-radius:var(--radius-sm); padding:12px 14px;
+  font-size:0.9rem; font-family:'Inter',sans-serif;
+  color:var(--text); outline:none;
+  transition:border 0.15s, box-shadow 0.15s;
+}
+input:focus, select:focus, textarea:focus {
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(99,102,241,0.12);
+  background:#fff;
+}
+input::placeholder, textarea::placeholder { color:var(--text3); }
+textarea { resize:vertical; min-height:110px; line-height:1.7; }
+.field { margin-bottom:12px; }
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+/* ─── COMPOSE AREA (iPhone mail style) ─── */
+.compose-field {
+  display:flex; align-items:flex-start; gap:12px;
+  padding:13px 0; border-bottom:1px solid var(--border);
+}
+.compose-field:last-child { border-bottom:none; }
+.compose-field label {
+  font-size:0.88rem; font-weight:500; color:var(--text2);
+  text-transform:none; letter-spacing:0; margin:0;
+  min-width:56px; padding-top:1px;
+}
+.compose-field input, .compose-field textarea {
+  flex:1; background:transparent; border:none; padding:0;
+  font-size:0.9rem; color:var(--text); font-weight:400;
+  box-shadow:none; border-radius:0;
+}
+.compose-field input:focus, .compose-field textarea:focus {
+  background:transparent; border:none; box-shadow:none;
+}
+.compose-body { padding-top:14px; }
+.compose-body textarea {
+  width:100%; background:transparent; border:none;
+  font-size:0.9rem; line-height:1.8; color:var(--text);
+  min-height:200px; resize:none; padding:0;
+}
+.compose-body textarea:focus { box-shadow:none; background:transparent; border:none; }
+
+/* ─── PILL TOGGLE ─── */
+.pill-toggle { display:flex; background:var(--bg); border-radius:12px; padding:3px; margin-bottom:12px; }
+.pill-btn {
+  flex:1; padding:9px; border:none; border-radius:10px; background:transparent;
+  cursor:pointer; font-size:0.83rem; font-weight:600; color:var(--text2);
+  transition:all 0.2s; font-family:'Inter',sans-serif;
+  display:flex; align-items:center; justify-content:center; gap:5px;
+}
+.pill-btn svg { width:14px; height:14px; }
+.pill-btn.active { background:#fff; color:var(--accent); box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+
+/* ─── BUTTONS ─── */
+.btn-primary {
+  width:100%; padding:15px; background:var(--text);
+  color:#fff; border:none; border-radius:var(--radius);
+  font-size:0.95rem; font-weight:700; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  font-family:'Inter',sans-serif; transition:transform 0.1s, opacity 0.15s;
+  letter-spacing:0.2px; margin-bottom:12px;
+}
+.btn-primary:active { transform:scale(0.99); opacity:0.9; }
+.btn-accent {
+  width:100%; padding:15px;
+  background:linear-gradient(135deg,#6366f1,#8b5cf6);
+  color:#fff; border:none; border-radius:var(--radius);
+  font-size:0.95rem; font-weight:700; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  font-family:'Inter',sans-serif; transition:transform 0.1s, opacity 0.15s;
+  box-shadow:0 4px 20px rgba(99,102,241,0.35); margin-bottom:12px;
+  letter-spacing:0.2px;
+}
+
+.panel-visible { display: block !important; }
+.panel-flex { display: flex !important; }
+
+
+.btn-accent:active { transform:scale(0.99); opacity:0.9; }
+.btn-ghost {
+  background:var(--bg); border:none; border-radius:var(--radius-sm);
+  padding:10px 16px; cursor:pointer; font-size:0.83rem; font-weight:600;
+  color:var(--text2); display:flex; align-items:center; gap:6px;
+  font-family:'Inter',sans-serif; transition:background 0.15s;
+}
+.btn-ghost:hover { background:#e5e5ea; }
+.btn-icon {
+  background:var(--accent); color:#fff; border:none; border-radius:10px;
+  padding:0 14px; height:40px; cursor:pointer; font-size:0.82rem;
+  font-weight:600; white-space:nowrap; display:flex; align-items:center;
+  gap:5px; font-family:'Inter',sans-serif; transition:opacity 0.15s; flex-shrink:0;
+}
+.btn-icon:active { opacity:0.85; }
+
+/* ─── LISTS ─── */
+.list-wrap {
+  background:var(--bg); border-radius:var(--radius-sm);
+  max-height:190px; overflow-y:auto; margin-top:6px;
+}
+.list-item {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 12px; border-bottom:1px solid var(--border);
+  font-size:0.84rem; color:var(--text);
+}
+.list-item:last-child { border-bottom:none; }
+.list-item .rm { background:none; border:none; cursor:pointer; color:var(--text3); display:flex; padding:2px; transition:color 0.1s; }
+.list-item .rm:hover { color:var(--red); }
+.list-empty { padding:18px; color:var(--text3); font-size:0.82rem; text-align:center; }
+.input-row { display:flex; gap:8px; align-items:flex-end; margin-bottom:6px; }
+.input-row input { flex:1; margin:0; }
+
+/* ─── BADGE ─── */
+.badge { display:inline-flex; align-items:center; background:#ede9fe; color:var(--accent); border-radius:20px; padding:2px 10px; font-size:0.7rem; font-weight:700; margin-left:6px; }
+.badge-green { background:#dcfce7; color:#16a34a; }
+.badge-red { background:#fee2e2; color:var(--red); }
+.badge-orange { background:#fff7ed; color:#ea580c; }
+
+/* ─── CODE OUTPUT ─── */
+.code-wrap { background:#ffffff; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow-md); margin-bottom:12px; border:1.5px solid #e5e7eb; }
+.code-header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid #e5e7eb; background:#f9fafb; gap:8px; flex-wrap:wrap; }
+.code-header span { color:#374151; font-size:0.78rem; font-weight:700; display:flex; align-items:center; gap:7px; }
+.code-header span svg { width:13px; height:13px; color:#6366f1; }
+.copy-btn { background:#ffffff; color:#374151; border:1.5px solid #d1d5db; border-radius:8px; padding:6px 14px; cursor:pointer; font-size:0.77rem; font-weight:600; display:flex; align-items:center; gap:6px; font-family:'Inter',sans-serif; transition:all 0.15s; }
+.copy-btn:hover { background:#f3f4f6; border-color:#6366f1; color:#6366f1; }
+.copy-btn.copied { background:#f0fdf4; color:#16a34a; border-color:#16a34a; }
+pre.code-box { color:#1e293b; background:#ffffff; font-family:'Courier New',monospace; font-size:0.74rem; padding:20px; overflow-x:auto; white-space:pre; line-height:1.75; margin:0; max-height:520px; overflow-y:auto; }
+
+/* ─── INFO BOX ─── */
+.info-box { background:#f0f9ff; border:1px solid #bae6fd; border-radius:12px; padding:10px 13px; display:flex; gap:8px; align-items:flex-start; margin-bottom:12px; }
+.info-box svg { width:13px; height:13px; color:#0284c7; flex-shrink:0; margin-top:1px; }
+.info-box p { font-size:0.74rem; color:#0369a1; line-height:1.55; }
+.warn-box { background:#fff7ed; border:1px solid #fed7aa; border-radius:12px; padding:10px 13px; display:flex; gap:8px; align-items:flex-start; margin-bottom:12px; }
+.warn-box svg { width:13px; height:13px; color:#ea580c; flex-shrink:0; margin-top:1px; }
+.warn-box p { font-size:0.74rem; color:#9a3412; line-height:1.55; }
+
+/* ─── PROXY AREA ─── */
+.proxy-raw {
+  width:100%; background:var(--bg); border:1.5px solid transparent;
+  border-radius:var(--radius-sm); padding:12px; font-size:0.76rem;
+  font-family:'Courier New',monospace; color:var(--text);
+  outline:none; min-height:130px; resize:vertical; line-height:1.8;
+  transition:border 0.15s;
+}
+.proxy-raw:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(99,102,241,0.12); background:#fff; }
+
+/* ─── QUICK ACTION ─── */
+.quick-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+.qa-btn {
+  background:var(--surface); border-radius:var(--radius-sm);
+  padding:16px; display:flex; flex-direction:column; align-items:flex-start;
+  gap:10px; cursor:pointer; box-shadow:var(--shadow);
+  border:none; font-family:'Inter',sans-serif; text-align:left;
+  transition:transform 0.15s, box-shadow 0.15s;
+}
+.qa-btn:active { transform:scale(0.97); }
+.qa-icon { width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; }
+.qa-btn span { font-size:0.82rem; font-weight:700; color:var(--text); }
+.qa-btn p { font-size:0.7rem; color:var(--text2); font-weight:500; margin-top:-6px; }
+
+/* ─── RECENT ACTIVITY ─── */
+.activity-item { display:flex; align-items:center; gap:13px; padding:12px 0; border-bottom:1px solid var(--border); }
+.activity-item:last-child { border-bottom:none; }
+.activity-icon { width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.activity-info { flex:1; }
+.activity-info h4 { font-size:0.84rem; font-weight:600; color:var(--text); margin-bottom:2px; }
+.activity-info p { font-size:0.72rem; color:var(--text2); }
+.activity-time { font-size:0.7rem; color:var(--text3); font-weight:500; }
+
+/* ─── ADS ─── */
+.ad-unit-card { background:var(--surface); border-radius:var(--radius); overflow:hidden; margin-bottom:12px; box-shadow:var(--shadow); }
+.ad-unit-header { padding:14px 18px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); }
+.ad-unit-header h3 { font-size:0.9rem; font-weight:700; color:var(--text); display:flex; align-items:center; gap:8px; }
+.ad-unit-body { padding:14px 18px; }
+.ad-placement { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border); }
+.ad-placement:last-child { border-bottom:none; }
+.ad-placement-left { display:flex; align-items:center; gap:10px; }
+.ad-placement-icon { width:32px; height:32px; border-radius:9px; background:#f0f0ff; display:flex; align-items:center; justify-content:center; }
+.ad-placement-icon svg { width:15px; height:15px; color:var(--accent); }
+.ad-placement h4 { font-size:0.82rem; font-weight:600; color:var(--text); }
+.ad-placement p { font-size:0.7rem; color:var(--text2); }
+.toggle-switch { position:relative; width:44px; height:26px; }
+.toggle-switch input { opacity:0; width:0; height:0; }
+.toggle-slider {
+  position:absolute; inset:0; background:#e5e5ea; border-radius:99px;
+  cursor:pointer; transition:0.2s;
+}
+.toggle-slider:before {
+  content:''; position:absolute; width:20px; height:20px;
+  left:3px; top:3px; background:#fff; border-radius:50%;
+  transition:0.2s; box-shadow:0 1px 4px rgba(0,0,0,0.2);
+}
+.toggle-switch input:checked + .toggle-slider { background:var(--green); }
+.toggle-switch input:checked + .toggle-slider:before { transform:translateX(18px); }
+
+/* ─── SETTINGS ─── */
+.settings-group { background:var(--surface); border-radius:var(--radius); overflow:hidden; margin-bottom:12px; box-shadow:var(--shadow); }
+.settings-row { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.1s; }
+.settings-row:last-child { border-bottom:none; }
+.settings-row:active { background:var(--bg); }
+.settings-row-left { display:flex; align-items:center; gap:13px; }
+.settings-icon { width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.settings-icon svg { width:15px; height:15px; color:#fff; }
+.settings-row h4 { font-size:0.88rem; font-weight:600; color:var(--text); }
+.settings-row p { font-size:0.72rem; color:var(--text2); }
+.settings-row svg.chevron { width:16px; height:16px; color:var(--text3); }
+
+/* ─── SECTION TITLE ─── */
+.section-title { font-size:1.1rem; font-weight:800; color:var(--text); letter-spacing:-0.3px; margin:18px 0 10px; }
+
+/* ─── IMG GRID ─── */
+.img-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); gap:8px; margin-top:10px; }
+.img-card { border-radius:12px; overflow:hidden; background:var(--bg); position:relative; }
+.img-card img { width:100%; height:80px; object-fit:cover; display:block; }
+.img-card .img-info { padding:5px 7px; font-size:0.65rem; color:var(--text2); word-break:break-all; line-height:1.3; }
+.img-card .rm-btn { position:absolute; top:5px; right:5px; background:rgba(0,0,0,0.5); border:none; border-radius:50%; width:22px; height:22px; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.img-card .rm-btn svg { width:11px; height:11px; }
+.img-upload-area { border:2px dashed #d1d5db; border-radius:var(--radius-sm); padding:22px; text-align:center; cursor:pointer; transition:all 0.15s; background:var(--bg); }
+.img-upload-area:hover { border-color:var(--accent); background:#f5f3ff; }
+.img-upload-area input { display:none; }
+.img-upload-area p { font-size:0.8rem; color:var(--text3); }
+.img-upload-area p.up-label { font-weight:600; color:var(--accent); margin-bottom:2px; }
+
+/* ─── DOMAIN LIST ─── */
+.domain-chip { background:var(--bg); border-radius:10px; padding:9px 12px; font-size:0.82rem; display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px; }
+.domain-chip a { color:var(--accent); text-decoration:none; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
+.domain-chip button { background:none; border:none; cursor:pointer; color:var(--text3); display:flex; align-items:center; transition:color 0.1s; }
+.domain-chip button:hover { color:var(--red); }
+
+/* ─── HINT ─── */
+.hint { font-size:0.71rem; color:var(--text3); margin-top:4px; display:flex; align-items:center; gap:4px; }
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:99px; }
+</style>
+</head>
+<body>
+
+<!-- ════════ SPLASH ════════ -->
+<div id="splash" style="position:fixed;inset:0;z-index:9999;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;">
+  <div style="position:relative;text-align:center;">
+    <div id="splashText" style="font-size:3rem;font-weight:900;color:#000;letter-spacing:-2px;opacity:0;transform:scale(0.6);transition:all 0.7s cubic-bezier(0.34,1.56,0.64,1);">BeelzeAds</div>
+    <div id="splashSub" style="font-size:0.8rem;color:#aaa;font-weight:500;letter-spacing:3px;text-transform:uppercase;margin-top:6px;opacity:0;transition:opacity 0.5s ease 0.5s;">Mail & Advertising Platform</div>
+    <div style="width:40px;height:3px;background:#000;border-radius:99px;margin:20px auto 0;transform:scaleX(0);transition:transform 0.6s ease 0.3s;" id="splashLine"></div>
+  </div>
+</div>
+
+<!-- ════════ APP ════════ -->
+<div id="app" style="display:none;flex-direction:column;min-height:100vh;padding-bottom:90px;">
+
+  <!-- TOP BAR -->
+  <div class="topbar" id="topbar">
+    <div class="topbar-left">
+      <h1 id="pageTitle">Dashboard</h1>
+      <p id="pageSubtitle">Good morning, Beelze 👋</p>
+    </div>
+    
+    <div class="topbar-right">
+      <!-- Mail Filter Toggle -->
+      <button onclick="openFilter()" style="position:relative;width:36px;height:36px;border-radius:50%;background:#fff;border:1px solid #e5e7eb;box-shadow:0 1px 6px rgba(0,0,0,0.08);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:box-shadow 0.2s;" title="Mail Filter">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+          <path d="M2 6L12 13L22 6V4L12 11L2 4V6Z" fill="#EA4335"/>
+          <path d="M2 6L2 18C2 19.1 2.9 20 4 20H9V13L2 6Z" fill="#34A853"/>
+          <path d="M22 6V18C22 19.1 21.1 20 20 20H15V13L22 6Z" fill="#4285F4"/>
+          <path d="M9 20H15V13L9 13V20Z" fill="#FBBC05"/>
+        </svg>
+        <div style="position:absolute;bottom:-1px;right:-1px;width:14px;height:14px;background:#6366f1;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid #fff;">
+          <i data-lucide="filter" style="width:8px;height:8px;color:#fff;"></i>
+        </div>
+      </button>
+      <div class="status-dot"></div>
+      <div class="topbar-avatar">
+      
+        <img src="https://media.base44.com/images/public/69aeee89baab381c29ae8d31/bb2a57956_Screenshot_20260406_015157_Gallery.jpg"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE: DASHBOARD ═══ -->
+  <div class="page active" id="pageDashboard" style="padding-top:8px">
+
+  
+
+    <div class="section-title">Quick Actions</div>
+    <div class="quick-actions">
+      <button class="qa-btn" onclick="goPage('compose')">
+        <div class="qa-icon" style="background:#ede9fe"><i data-lucide="pencil" style="width:18px;height:18px;color:#6366f1"></i></div>
+        <span>New Campaign</span>
+        <p>Compose & send</p>
+      </button>
+      <button class="qa-btn" onclick="goPage('config')">
+        <div class="qa-icon" style="background:#dcfce7"><i data-lucide="settings-2" style="width:18px;height:18px;color:#16a34a"></i></div>
+        <span>Setup</span>
+        <p>Accounts & proxies</p>
+      </button>
+      <button class="qa-btn" onclick="goPage('ads')">
+        <div class="qa-icon" style="background:#dbeafe"><i data-lucide="megaphone" style="width:18px;height:18px;color:#2563eb"></i></div>
+        <span>Advertising</span>
+        <p>Ad placements</p>
+      </button>
+      <button class="qa-btn" onclick="goPage('settings')">
+        <div class="qa-icon" style="background:#fff7ed"><i data-lucide="sliders-horizontal" style="width:18px;height:18px;color:#ea580c"></i></div>
+        <span>Settings</span>
+        <p>App preferences</p>
+      </button>
+    </div>
+
+    <div class="section-title">Recent Activity</div>
+    <div class="card" style="padding:2px 18px">
+      <div class="activity-item">
+        <div class="activity-icon" style="background:#ede9fe"><i data-lucide="send" style="width:16px;height:16px;color:#6366f1"></i></div>
+        <div class="activity-info">
+          <h4>Campaign Generated</h4>
+          <p>Python script ready for Colab</p>
+        </div>
+        <span class="activity-time">Just now</span>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon" style="background:#dcfce7"><i data-lucide="shield-check" style="width:16px;height:16px;color:#16a34a"></i></div>
+        <div class="activity-info">
+          <h4>Proxies Active</h4>
+          <p>IP rotation enabled</p>
+        </div>
+        <span class="activity-time">Ready</span>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon" style="background:#dbeafe"><i data-lucide="megaphone" style="width:16px;height:16px;color:#2563eb"></i></div>
+        <div class="activity-info">
+          <h4>Ads Platform</h4>
+          <p>Adsterra units configured</p>
+        </div>
+        <span class="activity-time">Live</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ PAGE: COMPOSE ═══ -->
+  <div class="page" id="pageCompose" style="padding-top:8px">
+    <div class="section-title">New Campaign</div>
+
+    <!-- COMPOSE CARD (iPhone mail style) -->
+    <div class="card" style="padding:0 18px">
+      <div class="compose-field">
+        <label>Subject</label>
+        <input id="cSubject" placeholder="Email subject line…"/>
+      </div>
+      <div class="compose-field" style="align-items:center">
+        <label>Mode</label>
+        <div style="flex:1">
+          <div class="pill-toggle" style="margin-bottom:0">
+            <button class="pill-btn active" id="modeBcc" onclick="setMode('bcc',this)">
+              <i data-lucide="eye-off" style="width:13px;height:13px"></i> BCC
+            </button>
+            <button class="pill-btn" id="modeInd" onclick="setMode('individual',this)">
+              <i data-lucide="send" style="width:13px;height:13px"></i> Individual
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="compose-body">
+        <textarea id="cBody" placeholder="Write your message here…&#10;&#10;Use {name} to personalise."></textarea>
+      </div>
+    </div>
+    
+    
+
+        <!-- IMAGES (under message) -->
+    <div class="card">
+      <div class="card-header" style="cursor:pointer;user-select:none;" onclick="toggleImgPanel()" id="imgCardHeader">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <i data-lucide="camera" style="width:14px;height:14px;color:var(--accent)"></i>
+          <span style="font-size:0.7rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.8px;">Add Images</span>
+        </div>
+        <i data-lucide="chevron-down" id="imgChevron" style="width:15px;height:15px;color:var(--text3);transition:transform 0.2s;"></i>
+      </div>
+
+      <div id="imgPanel" style="display:none;">
+        <!-- Two options -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 18px 0;">
+          <button onclick="document.getElementById('imgInput').click()" style="background:var(--bg);border:1.5px dashed #d1d5db;border-radius:12px;padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;font-family:'Inter',sans-serif;transition:border-color 0.15s;" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='#d1d5db'">
+            <i data-lucide="image-plus" style="width:22px;height:22px;color:var(--accent)"></i>
+            <span style="font-size:0.78rem;font-weight:700;color:var(--text)">Upload Photo</span>
+            <span style="font-size:0.68rem;color:var(--text3)">Auto-hosted on ImgBB</span>
+            <input type="file" id="imgInput" accept="image/*" multiple onchange="uploadImages(this.files)" style="display:none"/>
+          </button>
+          <button onclick="toggleUrlInput()" style="background:var(--bg);border:1.5px dashed #d1d5db;border-radius:12px;padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;font-family:'Inter',sans-serif;transition:border-color 0.15s;" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='#d1d5db'">
+            <i data-lucide="link-2" style="width:22px;height:22px;color:var(--accent)"></i>
+            <span style="font-size:0.78rem;font-weight:700;color:var(--text)">Paste URL</span>
+            <span style="font-size:0.68rem;color:var(--text3)">Direct image link</span>
+          </button>
+        </div>
+
+        <!-- URL input (hidden until clicked) -->
+        <div id="urlInputWrap" style="display:none;padding:12px 18px 0;">
+          <div style="display:flex;gap:8px;align-items:flex-end;">
+            <div style="flex:1"><label>Image URL</label><input id="directImgUrl" placeholder="https://i.ibb.co/yourimage.jpg"/></div>
+            <button class="btn-icon" onclick="addDirectUrl()"><i data-lucide="link" style="width:12px;height:12px"></i></button>
+          </div>
+        </div>
+
+        <div id="uploadStatus" style="padding:0 18px;margin-top:8px;"></div>
+        <div class="img-grid" id="imgGrid" style="padding:0 18px 14px;margin-top:8px;"></div>
+      </div>
+    </div>
+
+    <!-- SIGN OFF -->
+    <div class="card">
+      <div class="card-header"><i data-lucide="pen-line"></i> Sign-off</div>
+      <div class="field"><label>Sender Name</label><input id="cSenderName" placeholder="e.g. BeelzeAds Team"/></div>
+    </div>
+
+    <!-- BATCH SETTINGS -->
+    <div class="card">
+      <div class="card-header"><i data-lucide="sliders-horizontal"></i> Sending Settings</div>
+      <div class="grid2">
+        <div class="field"><label>BCC Batch Size</label><input id="cBatchSize" value="50" type="number" min="1" max="500"/></div>
+        <div class="field"><label>Emails/Account</label><input id="cEmailsPerAcc" value="100" type="number" min="1" max="500"/></div>
+      </div>
+      <div class="hint" style="margin-bottom:8px"><i data-lucide="info" style="width:11px;height:11px;color:var(--accent)"></i> Batch delay: random 40–120s · Account switch: random 20–50s · IP rotates every send</div>
+    </div>
+
+    <!-- RECIPIENTS -->
+    <div class="card">
+      <div class="card-header"><i data-lucide="users-round"></i> Recipients <span class="badge" id="countBadge">0 emails</span></div>
+      <div class="input-row">
+        <input id="emailInput" placeholder="Paste emails separated by commas or newlines…"/>
+        <button class="btn-icon" onclick="addEmails()"><i data-lucide="plus" style="width:13px;height:13px"></i></button>
+      </div>
+      <p class="hint" style="margin-bottom:8px"><i data-lucide="lightbulb" style="width:11px;height:11px;color:#f59e0b"></i> Paste bulk: email1@x.com, email2@x.com</p>
+      <div class="list-wrap" id="emailList" style="max-height:220px"><div class="list-empty">No recipients added yet</div></div>
+      <button class="btn-ghost" onclick="emails=[];renderEmails()" style="margin-top:8px;width:100%;justify-content:center;color:var(--red)">
+        <i data-lucide="trash-2" style="width:13px;height:13px"></i> Clear All
+      </button>
+    </div>
+
+    <!-- SENDER ACCOUNTS -->
+    <div class="card">
+  <div class="card-header"><i data-lucide="users"></i> Sender Accounts <span class="badge" id="accountBadge">0</span></div>
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+    <input id="accountInput" placeholder="email@gmail.com - apppassword" style="flex:1;background:var(--bg);border:1.5px solid transparent;border-radius:var(--radius-sm);padding:12px 14px;font-size:0.88rem;font-family:'Inter',sans-serif;color:var(--text);outline:none;transition:border 0.15s;"/>
+    <button class="btn-icon" onclick="addAccount()"><i data-lucide="plus" style="width:13px;height:13px"></i></button>
+  </div>
+  <p class="hint" style="margin-bottom:8px"><i data-lucide="lightbulb" style="width:11px;height:11px;color:#f59e0b"></i> Paste all accounts at once then click +</p>
+  <div class="list-wrap" id="accountList"><div class="list-empty">No accounts added</div></div>
+</div>
+
+    <!-- PROXY IPs -->
+    <div class="card">
+  <div class="card-header"><i data-lucide="shield"></i> Proxy IPs <span class="badge" id="proxyBadge">0</span></div>
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+    <input id="proxyRaw" placeholder="IP: x.x.x.x - PORT: 1234 - USERNAME: user - PASSWORD: pass" oninput="parseProxies()" style="flex:1;background:var(--bg);border:1.5px solid transparent;border-radius:var(--radius-sm);padding:12px 14px;font-size:0.82rem;font-family:'Courier New',monospace;color:var(--text);outline:none;transition:border 0.15s;"/>
+    <button class="btn-icon" onclick="parseProxies()"><i data-lucide="plus" style="width:13px;height:13px"></i></button>
+  </div>
+  <p class="hint" id="proxyHint" style="margin-bottom:8px"><i data-lucide="info" style="width:11px;height:11px"></i> Paste one or many — parsed automatically</p>
+  <div class="list-wrap" id="proxyList" style="max-height:160px;margin-bottom:10px;"></div>
+  <div class="field" style="margin-bottom:0">
+    <label>Proxy Protocol</label>
+    <select id="proxyType"><option value="socks5">SOCKS5</option><option value="socks4">SOCKS4</option><option value="http">HTTP</option></select>
+  </div>
+</div>
+
+
+
+    <!-- LINKS IN EMAIL -->
+    <div class="card">
+      <div class="card-header"><i data-lucide="link-2"></i> Call-to-Action Links</div>
+      <div style="display:flex;gap:8px;align-items:flex-end;margin-bottom:8px">
+        <div style="flex:1"><label>Label</label><input id="dText" placeholder="e.g. Shop Now"/></div>
+        <div style="flex:2"><label>URL</label><input id="dUrl" placeholder="https://darkmasterstore.co.za"/></div>
+        <button class="btn-icon" onclick="addDomain()" style="flex-shrink:0"><i data-lucide="plus" style="width:13px;height:13px"></i></button>
+      </div>
+      <div id="domainList"></div>
+    </div>
+
+    
+
+    <!-- GENERATE -->
+            <button onclick="generate()" style="width:100%;padding:16px 20px;background:#fff;color:#000;border:2px solid #e5e5ea;border-radius:20px;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:14px;font-family:'Inter',sans-serif;margin-bottom:12px;transition:all 0.15s;box-shadow:0 2px 12px rgba(0,0,0,0.06);" onmousedown="this.style.transform='scale(0.98)';this.style.boxShadow='0 1px 6px rgba(0,0,0,0.08)'" onmouseup="this.style.transform='scale(1)'">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="28" height="28" rx="8" fill="#3776AB"/>
+        <path d="M14 6C10.5 6 10.5 7.5 10.5 7.5V9H14V9.5H8.5C8.5 9.5 6 9.8 6 13C6 16.2 8.2 16 8.2 16H9.5V14.4C9.5 14.4 9.4 12 12 12H16C16 12 18 12.1 18 10.1V7.9C18 7.9 18.1 6 14 6ZM12.5 8C12.5 7.4 13 7 13.5 7C14 7 14.5 7.4 14.5 8C14.5 8.6 14 9 13.5 9C13 9 12.5 8.6 12.5 8Z" fill="#FFD43B"/>
+        <path d="M14 22C17.5 22 17.5 20.5 17.5 20.5V19H14V18.5H19.5C19.5 18.5 22 18.2 22 15C22 11.8 19.8 12 19.8 12H18.5V13.6C18.5 13.6 18.6 16 16 16H12C12 16 10 15.9 10 17.9V20.1C10 20.1 9.9 22 14 22ZM15.5 20C15.5 20.6 15 21 14.5 21C14 21 13.5 20.6 13.5 20C13.5 19.4 14 19 14.5 19C15 19 15.5 19.4 15.5 20Z" fill="#FFD43B"/>
+      </svg>
+      <div style="text-align:left;">
+        <div style="font-size:0.95rem;font-weight:700;color:#000;">Generate Python Script</div>
+        <div style="font-size:0.72rem;color:#aaa;font-weight:500;">Proxy · IP Rotation · BCC Blast</div>
+      </div>
+      <i data-lucide="chevron-right" style="width:18px;height:18px;color:#ccc;margin-left:auto"></i>
+    </button>
+      
+    <div id="outputSection" style="display:none">
+      <div class="code-wrap">
+        <div class="code-header">
+          <span><i data-lucide="terminal"></i> Python Script — Paste into Google Colab</span>
+          <button class="copy-btn" id="copyBtn" onclick="copyCode()"><i data-lucide="copy" style="width:12px;height:12px"></i> Copy</button>
+        </div>
+        <pre class="code-box" id="codeOutput"></pre>
+      </div>
+      
+      <button onclick="openInColab()" style="width:100%;padding:16px;background:#ff6b35;color:#fff;border:none;border-radius:18px;font-size:0.92rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;margin-bottom:10px;font-family:'Inter',sans-serif;box-shadow:0 4px 20px rgba(255,107,53,0.35);">
+        <i data-lucide="play" style="width:17px;height:17px"></i> Copy Script & Open Google Colab
+      </button>
+      
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:13px 15px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start">
+        <i data-lucide="check-circle-2" style="width:15px;height:15px;color:#16a34a;flex-shrink:0;margin-top:1px"></i>
+        <p style="font-size:0.78rem;color:#15803d;line-height:1.55">Script generated! Open <strong>colab.research.google.com</strong> → New Notebook → paste → ▶ Run</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ PAGE: CONFIG ═══ -->
+  <div class="page" id="pageConfig" style="padding-top:8px">
+    <div class="section-title">Sender Accounts</div>
+
+    <div class="card">
+      <div class="card-header"><i data-lucide="users"></i> Accounts Pool <span class="badge" id="accountBadge">0</span></div>
+      <div class="info-box">
+        <i data-lucide="info"></i>
+        <p>Format: <strong>email@gmail.com - apppassword</strong> — one per line</p>
+      </div>
+      <div class="input-row">
+        <textarea id="accountInput" rows="4" style="width:100%;background:var(--bg);border:1.5px solid transparent;border-radius:var(--radius-sm);padding:12px;font-size:0.8rem;font-family:'Courier New',monospace;color:var(--text);outline:none;resize:vertical;line-height:1.8;transition:border 0.15s;" placeholder="Paste all at once — any format:&#10;email@gmail.com-apppassword&#10;email@gmail.com - apppassword&#10;email1, email2 on same line — all work"></textarea>
+        <button class="btn-icon" onclick="addAccount()"><i data-lucide="plus" style="width:13px;height:13px"></i></button>
+      </div>
+      <div class="list-wrap" id="accountList"><div class="list-empty">No accounts added</div></div>
+    </div>
+
+    <div class="section-title">Proxy Configuration</div>
+
+    <div class="card">
+      <div class="card-header"><i data-lucide="shield"></i> Proxy IPs <span class="badge" id="proxyBadge">0</span></div>
+      <div class="info-box">
+        <i data-lucide="info"></i>
+        <p>Accepted format:<br/>
+        <strong>IP: x.x.x.x - PORT: 1234 - USERNAME: user - PASSWORD: pass</strong><br/>
+        or <strong>ip:port:user:pass</strong> — paste all at once.</p>
+      </div>
+      <div class="field">
+        <label>Paste Proxy List</label>
+        <textarea class="proxy-raw" id="proxyRaw" placeholder="IP: 38.154.203.95 - PORT: 5863 - USERNAME: lwlvfjpm - PASSWORD: qz3oatatml1n&#10;IP: 198.105.121.200 - PORT: 6462 - USERNAME: lwlvfjpm - PASSWORD: qz3oatatml1n&#10;..." oninput="parseProxies()"></textarea>
+        <p class="hint" id="proxyHint"><i data-lucide="info" style="width:11px;height:11px"></i> Proxies parsed automatically as you type</p>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Proxy Protocol</label>
+        <select id="proxyType">
+          <option value="socks5">SOCKS5 (Recommended)</option>
+          <option value="socks4">SOCKS4</option>
+          <option value="http">HTTP</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section-title">SMTP Settings</div>
+
+    <div class="card">
+      <div class="card-header"><i data-lucide="server"></i> SMTP Server</div>
+      <div class="grid2">
+        <div class="field"><label>Host</label><input id="smtpHost" value="smtp.gmail.com"/></div>
+        <div class="field"><label>Port</label><input id="smtpPort" value="25" type="number"/></div>
+      </div>
+      <div class="info-box" style="margin-bottom:0">
+        <i data-lucide="info"></i>
+        <p>Use Gmail <strong>App Passwords</strong> — not your regular password. Enable 2-Step Verification first.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ PAGE: RECIPIENTS ═══ -->
+  <div class="page" id="pageRecipients" style="padding-top:8px">
+    <div class="section-title">Recipients <span class="badge" id="recipientBadge">0 emails</span></div>
+
+    <div class="card">
+      <div class="card-header"><i data-lucide="users-round"></i> Email List</div>
+      <div class="input-row">
+        <input id="emailInput" placeholder="Paste emails separated by commas or newlines…"/>
+        <button class="btn-icon" onclick="addEmails()"><i data-lucide="plus" style="width:13px;height:13px"></i></button>
+      </div>
+      <p class="hint" style="margin-bottom:10px"><i data-lucide="lightbulb" style="width:11px;height:11px;color:#f59e0b"></i> Paste multiple: email1@x.com, email2@x.com</p>
+      <div class="list-wrap" id="emailList" style="max-height:360px"><div class="list-empty">No emails added yet</div></div>
+    </div>
+
+    <button class="btn-ghost" onclick="emails=[];renderEmails()" style="width:100%;justify-content:center;color:var(--red);margin-bottom:12px">
+      <i data-lucide="trash-2" style="width:14px;height:14px"></i> Clear All Recipients
+    </button>
+  </div>
+
+<!-- ═══ PAGE: ADS ═══ -->
+  <div class="page" id="pageAds" style="padding-top:8px">
+    <div class="section-title">BeelzeAds — Banner Manager</div>
+
+    <!-- ADD BANNER CARD -->
+    <div class="card">
+      <div class="card-header"><i data-lucide="building-2"></i> Add Business to Banner Rotation</div>
+      <p style="font-size:0.78rem;color:#888;margin-bottom:14px;line-height:1.6;">Each business rotates on the banner every 5 minutes. Its images rotate every 5 seconds.</p>
+
+      <div class="field"><label>Business Name</label><input id="bizName" placeholder="e.g. Pick n Pay"/></div>
+      <div class="field"><label>Slogan</label><input id="bizSlogan" placeholder="e.g. Fresher for longer"/></div>
+      <div class="field"><label>Website URL</label><input id="bizUrl" type="url" placeholder="https://www.picknpay.co.za"/></div>
+      <div class="field"><label>Phone (optional)</label><input id="bizPhone" type="tel" placeholder="e.g. 0800123456"/></div>
+
+      <label style="font-size:0.7rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px;">Business Images (add multiple)</label>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <input id="bizImgUrlInput" type="url" placeholder="Paste image URL..." style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:0.82rem;font-family:'Inter',sans-serif;outline:none;background:var(--bg);"/>
+        <button onclick="addBizImgUrl()" style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:700;font-size:0.8rem;font-family:'Inter',sans-serif;">Add URL</button>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px dashed #d1d5db;border-radius:10px;padding:12px 16px;cursor:pointer;font-size:0.8rem;font-weight:600;color:var(--text2);margin-bottom:10px;" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='#d1d5db'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+        Upload Images
+        <input type="file" accept="image/*" multiple style="display:none" onchange="uploadBizImages(this.files)"/>
+      </label>
+      <div id="bizUploadStatus" style="font-size:0.78rem;color:#6366f1;margin-bottom:6px;display:none;">Uploading...</div>
+      <div id="bizImgGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-bottom:14px;"></div>
+
+      <div id="bizFormError" style="font-size:0.78rem;color:#ef4444;margin-bottom:8px;display:none;"></div>
+      <button onclick="addCampaign()" style="width:100%;padding:13px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:11px;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Add Business to Rotation
+      </button>
+    </div>
+
+
+      <label style="font-size:0.78rem;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Banner Image</label>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <input id="bannerImgUrl" type="url" placeholder="Paste image URL or upload below..." 
+          style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:0.82rem;font-family:'Inter',sans-serif;background:var(--bg2);color:var(--text1);outline:none;"
+          oninput="previewBannerImg()">
+        <label style="display:flex;align-items:center;gap:6px;padding:10px 14px;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;font-size:0.8rem;font-weight:600;color:var(--text2);">
+          <i data-lucide="upload" style="width:14px;height:14px;"></i> Upload
+          <input type="file" accept="image/*" style="display:none" onchange="uploadBannerImg(this)">
+        </label>
+      </div>
+
+      <div id="bannerImgPreview" style="display:none;margin-bottom:12px;position:relative;">
+        <img id="bannerPreviewImg" style="width:100%;height:140px;object-fit:cover;border-radius:10px;border:2px solid var(--border);">
+        <button onclick="clearBannerImg()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);border:none;border-radius:50%;width:26px;height:26px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+          <i data-lucide="x" style="width:13px;height:13px;"></i>
+        </button>
+      </div>
+      <div id="bannerUploadStatus" style="font-size:0.78rem;color:#6366f1;margin-bottom:8px;display:none;">Uploading...</div>
+
+      <label style="font-size:0.78rem;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Click Destination URL</label>
+      <input id="bannerLinkUrl" type="url" placeholder="https://yourapp.com or any link..." 
+        style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:0.82rem;font-family:'Inter',sans-serif;background:var(--bg2);color:var(--text1);outline:none;margin-bottom:10px;box-sizing:border-box;">
+
+         <label style="font-size:0.78rem;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Ad Label (shown as "Sponsored by...")</label>
+      <input id="bannerLabel" type="text" placeholder="e.g. StreamX App, Dark Master Store..." 
+        style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:0.82rem;font-family:'Inter',sans-serif;background:var(--bg2);color:var(--text1);outline:none;margin-bottom:10px;box-sizing:border-box;">
+
+      <label style="font-size:0.78rem;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Phone Number (optional — for Call Now ads)</label>
+      <input id="bannerPhone" type="tel" placeholder="e.g. 0761234567" 
+        style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:0.82rem;font-family:'Inter',sans-serif;background:var(--bg2);color:var(--text1);outline:none;margin-bottom:12px;box-sizing:border-box;">
+
+      <div id="bannerFormError" style="font-size:0.78rem;color:#ef4444;margin-bottom:8px;display:none;"></div>
+
+      <button onclick="addBanner()" style="width:100%;padding:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:10px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <i data-lucide="plus-circle" style="width:16px;height:16px;"></i> Add Banner
+      </button>
+    </div>
+
+    <!-- LIVE PREVIEW -->
+    <div class="section-title">Live Preview</div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div id="bannerPreviewContainer" style="min-height:100px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:0.8rem;">
+        <i data-lucide="image" style="width:24px;height:24px;margin-right:8px;"></i> Your banner preview will appear here
+      </div>
+      <div id="bannerPreviewLabel" style="padding:8px 14px;font-size:0.72rem;color:#6b7280;display:none;">
+        <i data-lucide="external-link" style="width:11px;height:11px;"></i> <span id="bannerPreviewLabelText"></span>
+      </div>
+    </div>
+
+    <!-- BANNER LIST -->
+    <div class="section-title">My Banners (<span id="bannerCount">0</span>)</div>
+    <div id="bannerList" style="margin-bottom:16px;">
+      <div style="background:var(--bg1);border:1px solid var(--border);border-radius:12px;padding:32px;text-align:center;color:var(--text3);font-size:0.82rem;">
+        <i data-lucide="layout-panel-top" style="width:28px;height:28px;color:var(--border);display:block;margin:0 auto 10px;"></i>
+        No banners yet — add your first one above
+      </div>
+    </div>
+
+    
+        <!-- ROTATION SETTINGS -->
+    <div class="card">
+      <div class="card-header"><i data-lucide="settings-2"></i> Banner Settings</div>
+
+      <label style="font-size:0.78rem;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Ad Size</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+        <button class="size-btn active" onclick="selectSize(this,'xs')" data-size="xs" style="padding:10px;border:2px solid #6366f1;border-radius:10px;background:#ede9fe;color:#6366f1;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">
+          <i data-lucide="minimize-2" style="width:13px;height:13px;display:block;margin:0 auto 4px;"></i>Extra Small<br><span style="font-size:0.65rem;font-weight:400;color:#6b7280;">80px height</span>
+        </button>
+        <button class="size-btn" onclick="selectSize(this,'sm')" data-size="sm" style="padding:10px;border:2px solid var(--border);border-radius:10px;background:var(--bg2);color:var(--text2);font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">
+          <i data-lucide="square" style="width:13px;height:13px;display:block;margin:0 auto 4px;"></i>Small<br><span style="font-size:0.65rem;font-weight:400;color:#6b7280;">120px height</span>
+        </button>
+        <button class="size-btn" onclick="selectSize(this,'md')" data-size="md" style="padding:10px;border:2px solid var(--border);border-radius:10px;background:var(--bg2);color:var(--text2);font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">
+          <i data-lucide="layout-dashboard" style="width:13px;height:13px;display:block;margin:0 auto 4px;"></i>Medium<br><span style="font-size:0.65rem;font-weight:400;color:#6b7280;">200px height</span>
+        </button>
+        <button class="size-btn" onclick="selectSize(this,'lg')" data-size="lg" style="padding:10px;border:2px solid var(--border);border-radius:10px;background:var(--bg2);color:var(--text2);font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">
+          <i data-lucide="maximize-2" style="width:13px;height:13px;display:block;margin:0 auto 4px;"></i>Large<br><span style="font-size:0.65rem;font-weight:400;color:#6b7280;">300px height</span>
+        </button>
+      </div>
+
+      <label style="font-size:0.78rem;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Banner Style</label>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+        <button class="style-btn active" onclick="selectStyle(this,'image-only')" style="padding:10px 14px;border:2px solid #6366f1;border-radius:10px;background:#ede9fe;color:#6366f1;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;text-align:left;display:flex;align-items:center;gap:8px;">
+          <i data-lucide="image" style="width:14px;height:14px;flex-shrink:0;"></i> Image Only <span style="font-size:0.7rem;font-weight:400;color:#6b7280;margin-left:auto;">Click image → opens site</span>
+        </button>
+        <button class="style-btn" onclick="selectStyle(this,'shop-now')" style="padding:10px 14px;border:2px solid var(--border);border-radius:10px;background:var(--bg2);color:var(--text2);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;text-align:left;display:flex;align-items:center;gap:8px;">
+          <i data-lucide="shopping-bag" style="width:14px;height:14px;flex-shrink:0;"></i> Shop Now Button
+        </button>
+        <button class="style-btn" onclick="selectStyle(this,'book-now')" style="padding:10px 14px;border:2px solid var(--border);border-radius:10px;background:var(--bg2);color:var(--text2);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;text-align:left;display:flex;align-items:center;gap:8px;">
+          <i data-lucide="calendar-check" style="width:14px;height:14px;flex-shrink:0;"></i> Book Now Button
+        </button>
+        <button class="style-btn" onclick="selectStyle(this,'place-order')" style="padding:10px 14px;border:2px solid var(--border);border-radius:10px;background:var(--bg2);color:var(--text2);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;text-align:left;display:flex;align-items:center;gap:8px;">
+          <i data-lucide="package" style="width:14px;height:14px;flex-shrink:0;"></i> Place Order Button
+        </button>
+        <button class="style-btn" onclick="selectStyle(this,'visit-website')" style="padding:10px 14px;border:2px solid var(--border);border-radius:10px;background:var(--bg2);color:var(--text2);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;text-align:left;display:flex;align-items:center;gap:8px;">
+          <i data-lucide="globe" style="width:14px;height:14px;flex-shrink:0;"></i> Visit Website Button
+        </button>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div>
+          <div style="font-size:0.85rem;font-weight:600;">Rotate every</div>
+          <div style="font-size:0.72rem;color:var(--text3);">Seconds between banner switches</div>
+        </div>
+        <select id="rotationSpeed" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.85rem;background:var(--bg2);color:var(--text1);font-family:'Inter',sans-serif;">
+          <option value="3000">3 seconds</option>
+          <option value="5000" selected>5 seconds</option>
+          <option value="8000">8 seconds</option>
+          <option value="10000">10 seconds</option>
+          <option value="15000">15 seconds</option>
+        </select>
+      </div>
+      
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:0.85rem;font-weight:600;">Transition</div>
+          <div style="font-size:0.72rem;color:var(--text3);">Banner switch animation</div>
+        </div>
+        <select id="rotationTransition" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.85rem;background:var(--bg2);color:var(--text1);font-family:'Inter',sans-serif;">
+          <option value="fade" selected>Fade</option>
+          <option value="slide">Slide</option>
+          <option value="none">None</option>
+        </select>
+      </div>
+    </div>
+    <!-- GENERATE SCRIPT -->
+    <div class="section-title">Generated Embed Script</div>
+    <div class="card">
+      <div class="card-header"><i data-lucide="code-2"></i> BeelzeAds Banner Script</div>
+      <p style="font-size:0.8rem;color:var(--text2);margin-bottom:12px;line-height:1.6;">
+        Copy this script and paste it into ANY website or app HTML. Banners rotate automatically. Controlled from BeelzeAds — no need to touch other apps' code again.
+      </p>
+
+      <button onclick="generateBannerScript()" style="width:100%;padding:12px;background:linear-gradient(135deg,#059669,#0d9488);color:#fff;border:none;border-radius:10px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;">
+        <i data-lucide="zap" style="width:16px;height:16px;"></i> Generate Script
+      </button>
+
+      <div id="bannerScriptWrap" style="display:none;">
+        <div class="code-wrap">
+          <div class="code-header">
+            <span><i data-lucide="code-2"></i> Paste this in your HTML</span>
+            <button class="copy-btn" onclick="copyBannerScript()"><i data-lucide="copy" style="width:12px;height:12px"></i> Copy</button>
+          </div>
+          <pre class="code-box" id="bannerScriptOutput" style="white-space:pre-wrap;word-break:break-all;font-size:0.72rem;max-height:300px;overflow-y:auto;"></pre>
+        </div>
+        <div class="warn-box" style="margin-top:10px;margin-bottom:0;">
+          <i data-lucide="info"></i>
+          <p>This script loads banners from Firebase in real-time. Update banners here — all sites update automatically with no code changes needed.</p>
+        </div>
+    </div>
+
+  </div> <!-- end pageAds -->
+
+  <!-- ═══ PAGE: SETTINGS ═══ -->
+  <div class="page" id="pageSettings" style="padding-top:8px">
+    <div class="section-title">Settings</div>
+
+    <div class="settings-group">
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-icon" style="background:#6366f1"><i data-lucide="user" style="width:15px;height:15px;color:#fff"></i></div>
+          <div><h4>Account</h4><p>beelzeapps@gmail.com</p></div>
+        </div>
+        <i data-lucide="chevron-right" class="chevron"></i>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-icon" style="background:#0a84ff"><i data-lucide="shield" style="width:15px;height:15px;color:#fff"></i></div>
+          <div><h4>Access Code</h4><p>Change unlock password</p></div>
+        </div>
+        <i data-lucide="chevron-right" class="chevron"></i>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-icon" style="background:#30d158"><i data-lucide="zap" style="width:15px;height:15px;color:#fff"></i></div>
+          <div><h4>Send Performance</h4><p>Delays &amp; rotation settings</p></div>
+        </div>
+        <i data-lucide="chevron-right" class="chevron"></i>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-icon" style="background:#ff9f0a"><i data-lucide="image" style="width:15px;height:15px;color:#fff"></i></div>
+          <div><h4>ImgBB API Key</h4><p>Image upload settings</p></div>
+        </div>
+        <i data-lucide="chevron-right" class="chevron"></i>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-icon" style="background:#ff3b30"><i data-lucide="server" style="width:15px;height:15px;color:#fff"></i></div>
+          <div><h4>SMTP Defaults</h4><p>smtp.gmail.com : 587</p></div>
+        </div>
+        <i data-lucide="chevron-right" class="chevron"></i>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-icon" style="background:#5e5ce6"><i data-lucide="book-open" style="width:15px;height:15px;color:#fff"></i></div>
+          <div><h4>How to Use</h4><p>Step-by-step guide</p></div>
+        </div>
+        <i data-lucide="chevron-right" class="chevron"></i>
+      </div>
+      <div class="settings-row" onclick="openColab()">
+        <div class="settings-row-left">
+          <div class="settings-icon" style="background:#ff6b35"><i data-lucide="play" style="width:15px;height:15px;color:#fff"></i></div>
+          <div><h4>Open Google Colab</h4><p>Run your script online</p></div>
+        </div>
+        <i data-lucide="chevron-right" class="chevron"></i>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:20px 0;color:var(--text3);font-size:0.75rem;">
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:4px">
+        <div style="width:24px;height:24px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:8px;display:flex;align-items:center;justify-content:center">
+          <i data-lucide="zap" style="width:13px;height:13px;color:#fff"></i>
+        </div>
+        <span style="font-weight:700;color:var(--text2)">BeelzeAds</span>
+      </div>
+      Version 2.0 · by Beelze
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <div class="nav-item active" id="nav-dashboard" onclick="goPage('dashboard')">
+      <i data-lucide="home"></i><span>Home</span>
+    </div>
+    <div class="nav-item" id="nav-compose" onclick="goPage('compose')">
+      <i data-lucide="pencil"></i><span>Compose</span>
+    </div>
+    <div class="nav-item" id="nav-recipients" onclick="goPage('recipients')">
+      <i data-lucide="users"></i><span>Recipients</span>
+    </div>
+    <div class="nav-item" id="nav-config" onclick="goPage('config')">
+      <i data-lucide="settings-2"></i><span>Setup</span>
+    </div>
+    <div class="nav-item" id="nav-ads" onclick="goPage('ads')">
+      <i data-lucide="megaphone"></i><span>Ads</span>
+    </div>
+    </nav>
+
+  <!-- ════════ MAIL FILTER PANEL ════════ -->
+  <!-- Trigger button — add this inside .topbar-right div -->
+
+  <!-- Panel overlay -->
+  <div id="filterOverlay" onclick="closeFilter()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:299;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);"></div>
+
+  <!-- Panel -->
+  <div id="filterPanel" style="display:none;position:fixed;inset:0;z-index:300;background:#f8f9fa;overflow-y:auto;animation:slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);">
+    
+    <!-- Panel Header -->
+    <div style="background:#000;color:#fff;padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;border-bottom:1px solid #222;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:32px;height:32px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <!-- Gmail icon -->
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+            <path d="M2 6L12 13L22 6V4L12 11L2 4V6Z" fill="#EA4335"/>
+            <path d="M2 6L2 18C2 19.1 2.9 20 4 20H9V13L2 6Z" fill="#34A853"/>
+            <path d="M22 6V18C22 19.1 21.1 20 20 20H15V13L22 6Z" fill="#4285F4"/>
+            <path d="M9 20H15V13L9 13V20Z" fill="#FBBC05"/>
+          </svg>
+        </div>
+        <div>
+          <div style="font-size:0.95rem;font-weight:700;display:flex;align-items:center;gap:7px;">
+            Mail Filter
+            <span style="font-size:0.65rem;background:#222;color:#888;padding:2px 6px;border-radius:4px;">v2.0</span>
+          </div>
+          <div style="font-size:0.7rem;color:#888;margin-top:1px;">Clean · Deduplicate · Export</div>
+        </div>
+      </div>
+      <button onclick="closeFilter()" style="background:#1a1a1a;border:1px solid #333;color:#aaa;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:0.82rem;font-weight:600;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;">
+        <i data-lucide="x" style="width:13px;height:13px;"></i> Close
+      </button>
+    </div>
+
+    <!-- Panel Body -->
+    <div style="padding:20px 16px 60px;">
+
+      <!-- Tips -->
+      <div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:0.8rem;color:#5a5a5a;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+        <i data-lucide="lightbulb" style="width:14px;height:14px;flex-shrink:0;"></i>
+        Paste emails in any format — comma-separated, one per line, or mixed.
+      </div>
+
+      <!-- Stats -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+        <div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+          <div style="font-size:0.65rem;color:#8a8a8a;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:5px;"><i data-lucide="inbox" style="width:11px;height:11px;"></i> Total Input</div>
+          <div style="font-size:1.8rem;font-weight:800;letter-spacing:-0.03em;" id="fStatTotal">0</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+          <div style="font-size:0.65rem;color:#8a8a8a;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:5px;"><i data-lucide="check-circle-2" style="width:11px;height:11px;"></i> Clean Unique</div>
+          <div style="font-size:1.8rem;font-weight:800;letter-spacing:-0.03em;color:#1a6b3a;" id="fStatClean">0</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+          <div style="font-size:0.65rem;color:#8a8a8a;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:5px;"><i data-lucide="copy-x" style="width:11px;height:11px;"></i> Duplicates</div>
+          <div style="font-size:1.8rem;font-weight:800;letter-spacing:-0.03em;color:#c0392b;" id="fStatDupes">0</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+          <div style="font-size:0.65rem;color:#8a8a8a;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:5px;"><i data-lucide="alert-triangle" style="width:11px;height:11px;"></i> Invalid</div>
+          <div style="font-size:1.8rem;font-weight:800;letter-spacing:-0.03em;" id="fStatInvalid">0</div>
+        </div>
+      </div>
+
+      <!-- Input Card -->
+      <div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+        <div style="padding:14px 16px;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-weight:700;font-size:0.88rem;display:flex;align-items:center;gap:8px;"><i data-lucide="file-text" style="width:14px;height:14px;color:#5a5a5a;"></i> Raw Email List</div>
+          <span style="background:#f1f3f5;border:1px solid #e0e0e0;border-radius:20px;font-size:0.72rem;font-weight:700;padding:3px 9px;display:flex;align-items:center;gap:4px;"><i data-lucide="hash" style="width:10px;height:10px;"></i><span id="fInputCount">0</span></span>
+        </div>
+        <textarea id="fInputEmails" oninput="fUpdateCount()" spellcheck="false" style="width:100%;min-height:180px;padding:14px 16px;font-family:'Courier New',monospace;font-size:0.8rem;line-height:1.7;background:#fff;color:#0a0a0a;border:none;outline:none;resize:vertical;" placeholder="Paste emails here...&#10;email1@example.com,&#10;email2@example.com"></textarea>
+        <div style="padding:12px 16px;border-top:1px solid #e0e0e0;background:#f8f9fa;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <button onclick="fFilter()" style="background:#000;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:7px;"><i data-lucide="filter" style="width:13px;height:13px;"></i> Filter & Clean</button>
+          <button onclick="fSave()" style="background:#fff;color:#374151;border:1.5px solid #d1d5db;border-radius:8px;padding:8px 14px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;"><i data-lucide="save" style="width:12px;height:12px;"></i> Save</button>
+          <button onclick="fLoad()" style="background:#fff;color:#374151;border:1.5px solid #d1d5db;border-radius:8px;padding:8px 14px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;"><i data-lucide="folder-open" style="width:12px;height:12px;"></i> Load</button>
+          <button onclick="fClearInput()" style="background:#fff;color:#c0392b;border:1.5px solid #e8c0bc;border-radius:8px;padding:8px 14px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;"><i data-lucide="trash-2" style="width:12px;height:12px;"></i> Clear</button>
+        </div>
+      </div>
+
+      <!-- Output Card -->
+      <div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+        <div style="padding:14px 16px;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <div style="font-weight:700;font-size:0.88rem;display:flex;align-items:center;gap:8px;"><i data-lucide="list-checks" style="width:14px;height:14px;color:#5a5a5a;"></i> Cleaned List</div>
+          <span style="background:#0a0a0a;color:#fff;border-radius:20px;font-size:0.72rem;font-weight:700;padding:3px 10px;display:flex;align-items:center;gap:5px;"><i data-lucide="check-circle" style="width:10px;height:10px;"></i><span id="fOutputCount">0</span> unique</span>
+        </div>
+        
+        <div style="padding:12px 16px;border-bottom:1px solid #e0e0e0;background:#f8f9fa;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <button onclick="fCopyAll()" style="background:#000;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:7px;"><i data-lucide="clipboard-copy" style="width:12px;height:12px;"></i> Copy All</button>
+          <button onclick="fDownloadTxt()" style="background:#fff;color:#374151;border:1.5px solid #d1d5db;border-radius:8px;padding:8px 14px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;"><i data-lucide="download" style="width:12px;height:12px;"></i> .txt</button>
+          <button onclick="fDownloadCsv()" style="background:#fff;color:#374151;border:1.5px solid #d1d5db;border-radius:8px;padding:8px 14px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;"><i data-lucide="file-spreadsheet" style="width:12px;height:12px;"></i> .csv</button>
+          <button onclick="fClearOutput()" style="background:#fff;color:#5a5a5a;border:1.5px solid #e0e0e0;border-radius:8px;padding:8px 14px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;"><i data-lucide="eraser" style="width:12px;height:12px;"></i> Clear</button>
+        </div>
+        <div id="fOutput" style="min-height:180px;max-height:400px;overflow-y:auto;padding:14px 16px;font-family:'Courier New',monospace;font-size:0.8rem;line-height:1.85;background:#fff;color:#bbb;font-style:italic;white-space:pre-wrap;word-break:break-all;cursor:default;user-select:all;">Filtered emails will appear here...</div>
+        
+      </div>
+
+      <!-- Duplicates Card -->
+      <div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+        <div style="padding:14px 16px;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-weight:700;font-size:0.88rem;display:flex;align-items:center;gap:8px;"><i data-lucide="layers" style="width:14px;height:14px;color:#5a5a5a;"></i> Duplicate Addresses</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="background:#f1f3f5;border:1px solid #e0e0e0;border-radius:20px;font-size:0.72rem;font-weight:700;padding:3px 9px;display:flex;align-items:center;gap:4px;" id="fDupeBadge"><i data-lucide="x-circle" style="width:10px;height:10px;"></i> 0 found</span>
+            <button id="fToggleDupBtn" onclick="fToggleDupes()" style="display:none;background:#fff;color:#374151;border:1.5px solid #d1d5db;border-radius:6px;padding:6px 12px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:none;align-items:center;gap:5px;"><i data-lucide="chevron-down" id="fDupChevron" style="width:12px;height:12px;"></i> <span id="fDupBtnText">Show</span></button>
+          </div>
+        </div>
+        <div id="fDupWrap" style="max-height:0;overflow:hidden;transition:max-height 0.3s ease;">
+          <div id="fDupList" style="padding:14px 16px;background:#f8f9fa;border-top:1px solid #e0e0e0;"></div>
+        </div>
+        <div id="fDupEmpty" style="padding:36px 20px;text-align:center;color:#bbb;font-size:0.82rem;display:flex;flex-direction:column;align-items:center;gap:8px;">
+          <i data-lucide="inbox" style="width:32px;height:32px;color:#d0d0d0;"></i>
+          No duplicates found yet — run a filter first
+        </div>
+      </div>
+
+    </div>
+  </div>
+  
+  
+  
+  
+<!-- ════ APPS LOGIN MODAL ════ -->
+<div id="appsLoginOverlay" onclick="closeAppsLogin()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:1100;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);"></div>
+<div id="appsLoginModal" style="display:none !important;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1200;width:min(340px,92vw);background:#000;border-radius:24px;padding:36px 28px;box-shadow:0 30px 80px rgba(0,0,0,0.6);border:1px solid #222;font-family:'Inter',sans-serif;">
+  <div style="text-align:center;margin-bottom:28px;">
+    <div style="width:58px;height:58px;background:#111;border:1px solid #333;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+    </div>
+    <div style="font-size:1.1rem;font-weight:800;color:#fff;">Ad Applications</div>
+    <div style="font-size:0.75rem;color:#555;margin-top:4px;">Enter access code to view submissions</div>
+  </div>
+  <div style="position:relative;margin-bottom:14px;">
+    <div style="position:absolute;left:14px;top:50%;transform:translateY(-50%);">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <input id="appsPwInput" type="password" placeholder="Access code" onkeydown="if(event.key==='Enter')checkAppsPw()"
+      style="width:100%;padding:14px 14px 14px 44px;background:#111;border:1.5px solid #6366f1;border-radius:12px;color:#fff;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;letter-spacing:3px;"/>
+  </div>
+  <div id="appsPwError" style="display:none;font-size:0.75rem;color:#ef4444;margin-bottom:12px;text-align:center;">Wrong access code. Try again.</div>
+  <button onclick="checkAppsPw()" style="width:100%;padding:14px;background:#fff;color:#000;border:none;border-radius:12px;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
+    Enter
+  </button>
+  <button onclick="closeAppsLogin()" style="width:100%;padding:12px;background:transparent;color:#555;border:none;border-radius:12px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-top:6px;">Cancel</button>
+</div>
+
+<!-- ════ APPLICATIONS PANEL ════ -->
+<div id="appsPanel" style="display:none !important;position:fixed;inset:0;z-index:1000;background:#f5f5f5;overflow-y:auto;font-family:'Inter',sans-serif;">
+  <div style="background:#000;color:#fff;padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;border-bottom:1px solid #1a1a1a;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:34px;height:34px;background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+      </div>
+      <div>
+        <div style="font-size:0.95rem;font-weight:700;">Ad Applications
+          <span id="appsCount" style="background:#e00;color:#fff;font-size:0.62rem;font-weight:800;padding:2px 8px;border-radius:20px;margin-left:6px;">0</span>
+        </div>
+        <div style="font-size:0.68rem;color:#888;">BeelzeAds submissions</div>
+      </div>
+    </div>
+    <button onclick="closeAppsPanel()" style="background:#1a1a1a;border:1px solid #333;color:#aaa;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:0.82rem;font-weight:600;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      Close
+    </button>
+  </div>
+  <div style="padding:20px 16px 60px;">
+    <div id="appsList">
+      <div style="text-align:center;padding:60px 20px;color:#aaa;font-size:0.85rem;">Loading applications...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PAYMENT SUCCESS PAGE ════ -->
+<div id="paymentPage" style="display:none !important;position:fixed;inset:0;z-index:2000;font-family:'Inter',sans-serif;overflow-y:auto;">
+  <!-- Blurry red background -->
+  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at center,rgba(220,0,0,0.55) 0%,rgba(180,0,0,0.85) 100%);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);z-index:0;"></div>
+  
+  <div style="position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 20px 60px;">
+    
+    <!-- Success check -->
+    <div style="width:70px;height:70px;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    </div>
+    <div style="font-size:1.3rem;font-weight:900;color:#fff;letter-spacing:-0.3px;margin-bottom:6px;">Application Received!</div>
+    <div style="font-size:0.82rem;color:rgba(255,255,255,0.75);margin-bottom:30px;text-align:center;max-width:300px;line-height:1.6;">
+      To activate your ad, complete your payment below. We will run your ads once we confirm receipt.
+    </div>
+
+    <!-- Capitec Card -->
+    <div style="background:#fff;border-radius:22px;width:100%;max-width:380px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.35);margin-bottom:20px;">
+      
+      <!-- Capitec header -->
+      <div style="background:#0070CD;padding:20px 22px 16px;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:1.2rem;font-weight:900;color:#fff;letter-spacing:-0.5px;">capitec</div>
+          <div style="font-size:0.65rem;color:rgba(255,255,255,0.7);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;">bank</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <div style="width:28px;height:28px;border-radius:50%;background:#E2231A;opacity:0.9;"></div>
+          <div style="width:28px;height:28px;border-radius:50%;background:#fff;opacity:0.9;margin-left:-12px;"></div>
+        </div>
+      </div>
+
+      <!-- Bank details -->
+      <div style="padding:22px;">
+        <div style="font-size:0.65rem;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;display:flex;align-items:center;gap:6px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+          Bank Account Details
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;background:#f8f9fa;border-radius:12px;padding:14px 16px;">
+            <div>
+              <div style="font-size:0.65rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Bank</div>
+              <div style="font-size:0.92rem;font-weight:800;color:#111;">Capitec Bank</div>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0070CD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;background:#f8f9fa;border-radius:12px;padding:14px 16px;">
+            <div>
+              <div style="font-size:0.65rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Account Number</div>
+              <div style="font-size:1.1rem;font-weight:900;color:#111;letter-spacing:2px;">2037 437 125</div>
+            </div>
+            <button onclick="navigator.clipboard.writeText('2037437125');this.innerHTML='<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'#16a34a\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'20 6 9 17 4 12\'/></svg>';setTimeout(()=>{this.innerHTML='<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'#555\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><rect width=\'14\' height=\'14\' x=\'8\' y=\'8\' rx=\'2\' ry=\'2\'/><path d=\'M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\'/></svg>'},2000)" style="background:#eee;border:none;border-radius:8px;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            </button>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;background:#f8f9fa;border-radius:12px;padding:14px 16px;">
+            <div>
+              <div style="font-size:0.65rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Account Type</div>
+              <div style="font-size:0.92rem;font-weight:800;color:#111;">Savings Account</div>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0070CD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h0"/></svg>
+          </div>
+        </div>
+
+        <!-- How to deposit -->
+        <div style="margin-top:18px;background:#fffbeb;border:1.5px solid #fde68a;border-radius:12px;padding:14px 16px;">
+          <div style="font-size:0.72rem;font-weight:700;color:#92400e;display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#92400e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            HOW TO DEPOSIT
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;gap:10px;align-items:flex-start;">
+              <div style="width:20px;height:20px;background:#0070CD;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:800;color:#fff;flex-shrink:0;">1</div>
+              <div style="font-size:0.78rem;color:#555;line-height:1.5;">Open your Capitec app or any bank app</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;">
+              <div style="width:20px;height:20px;background:#0070CD;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:800;color:#fff;flex-shrink:0;">2</div>
+              <div style="font-size:0.78rem;color:#555;line-height:1.5;">Select <strong>Pay / Transfer</strong> → EFT or Beneficiary</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;">
+              <div style="width:20px;height:20px;background:#0070CD;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:800;color:#fff;flex-shrink:0;">3</div>
+              <div style="font-size:0.78rem;color:#555;line-height:1.5;">Enter account number <strong>2037 437 125</strong> (Capitec Bank)</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;">
+              <div style="width:20px;height:20px;background:#0070CD;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:800;color:#fff;flex-shrink:0;">4</div>
+              <div style="font-size:0.78rem;color:#555;line-height:1.5;">Use your <strong>business name</strong> as reference</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;">
+              <div style="width:20px;height:20px;background:#E2231A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:800;color:#fff;flex-shrink:0;">5</div>
+              <div style="font-size:0.78rem;color:#555;line-height:1.5;">Click <strong>Confirm Payment</strong> below after depositing</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Packages reminder -->
+        <div style="margin-top:14px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:12px;padding:13px 16px;display:flex;gap:10px;align-items:center;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <div style="font-size:0.78rem;color:#15803d;line-height:1.5;"><strong>Email blast:</strong> R200 / 1,000 emails &nbsp;·&nbsp; <strong>Banner ad:</strong> R100 / 30 days</div>
+        </div>
+
+        <!-- Confirm button -->
+        <button onclick="confirmPayment()" style="width:100%;margin-top:18px;padding:16px;background:linear-gradient(135deg,#0070CD,#0056a3);color:#fff;border:none;border-radius:14px;font-size:0.95rem;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:0.3px;box-shadow:0 6px 20px rgba(0,112,205,0.4);">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          I Have Made My Deposit
+        </button>
+        <div style="text-align:center;font-size:0.72rem;color:#aaa;margin-top:10px;line-height:1.5;">
+          Your ads will go live within 24 hours after payment is confirmed.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</div><!-- end app -->
+
+<!-- ═══ PUBLIC GATE — ADVERTISER LANDING PAGE ═══ -->
+<div id="publicGate" style="display:none;flex-direction:column;min-height:100vh;background:#fff;font-family:'Inter',sans-serif;padding-bottom:40px;">
+
+    <!-- HERO HEADER -->
+  <div style="background:#fff;padding:36px 24px 20px;text-align:center;border-bottom:1px solid #f0f0f0;position:relative;">
+    <button ondblclick="openAppsLogin()" title="Double-tap to view Applications" style="position:absolute;top:16px;right:16px;background:#f4f4f4;border:1.5px solid #e0e0e0;border-radius:12px;padding:6px 10px;display:flex;align-items:center;gap:6px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.08);transition:all 0.2s;">
+  <i data-lucide="inbox" style="width:16px;height:16px;color:#333;"></i>
+  <span id="appCountBadge" style="background:#e00;color:#fff;font-size:0.65rem;font-weight:800;border-radius:20px;padding:1px 7px;display:none;">0</span>
+</button>
+    <div id="gateLogoTitle" style="font-size:1.5rem;font-weight:900;letter-spacing:-1px;color:#000;cursor:pointer;display:inline-block;" ondblclick="openAdminGate()">BeelzeAds</div>
+
+<!-- ADMIN LOGIN MODAL -->
+<div id="adminGateOverlay" onclick="closeAdminGate()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;backdrop-filter:blur(8px);"></div>
+<div id="adminGateModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;width:min(340px,90vw);background:#000;border-radius:24px;padding:36px 28px;box-shadow:0 30px 80px rgba(0,0,0,0.5);border:1px solid #222;">
+  <div style="text-align:center;margin-bottom:28px;">
+    <div style="width:56px;height:56px;background:#111;border:1px solid #333;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <div style="font-size:1.1rem;font-weight:800;color:#fff;letter-spacing:-0.3px;">Admin Access</div>
+    <div style="font-size:0.75rem;color:#555;margin-top:4px;">BeelzeAds Control Panel</div>
+  </div>
+
+  <div style="position:relative;margin-bottom:14px;">
+    <div style="position:absolute;left:14px;top:50%;transform:translateY(-50%);">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <input id="adminPwInput" type="password" placeholder="Enter access code" onkeydown="if(event.key==='Enter')checkAdminPw()"
+      style="width:100%;padding:14px 14px 14px 42px;background:#111;border:1.5px solid #6366f1;border-radius:12px;color:#fff;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;letter-spacing:3px;box-shadow:0 0 0 3px rgba(99,102,241,0.15);"
+      onfocus="this.style.borderColor='#818cf8';this.style.boxShadow='0 0 0 4px rgba(99,102,241,0.25)'" 
+      onblur="this.style.borderColor='#6366f1';this.style.boxShadow='0 0 0 3px rgba(99,102,241,0.15)'"/>
+  </div>
+
+  <div id="adminPwError" style="display:none;font-size:0.75rem;color:#ef4444;margin-bottom:12px;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+    Wrong access code
+  </div>
+
+  <button onclick="checkAdminPw()" style="width:100%;padding:14px;background:#fff;color:#000;border:none;border-radius:12px;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
+    Enter
+  </button>
+
+  <button onclick="closeAdminGate()" style="width:100%;padding:12px;background:transparent;color:#444;border:none;border-radius:12px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-top:8px;">Cancel</button>
+</div>
+    <div style="font-size:0.72rem;color:#aaa;margin-top:4px;letter-spacing:2px;text-transform:uppercase;">Mail & Advertising Platform</div>
+    <div style="width:32px;height:2px;background:#e00;border-radius:99px;margin:14px auto 0;"></div>
+  </div>
+
+  <!-- HEADLINE -->
+  <div style="padding:28px 24px 0;text-align:center;">
+    <div style="font-size:1.1rem;font-weight:800;color:#111;line-height:1.35;letter-spacing:-0.3px;">Reach real South African customers.</div>
+    <div style="font-size:0.8rem;color:#888;margin-top:6px;line-height:1.6;">Choose a plan and get your business in front of thousands.</div>
+  </div>
+
+  <!-- PACKAGES -->
+  <div style="padding:20px 18px 0;">
+    <div style="font-size:0.65rem;font-weight:700;color:#bbb;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;">Choose your package</div>
+
+    <!-- EMAIL PACKAGE -->
+    <div id="gatePkgEmail" onclick="gateSelectPkg('email',this)" style="background:#fff;border:2px solid #eee;border-radius:18px;padding:18px 20px;cursor:pointer;margin-bottom:12px;position:relative;overflow:hidden;transition:border 0.2s,box-shadow 0.2s;">
+      <div style="position:absolute;top:0;left:0;width:4px;height:100%;background:#e00;border-radius:18px 0 0 18px;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div style="font-size:0.65rem;font-weight:700;color:#e00;text-transform:uppercase;letter-spacing:1px;">Email Marketing</div>
+        <div id="gatePkgEmailCheck" style="width:18px;height:18px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;transition:all 0.2s;"></div>
+      </div>
+      <div style="font-size:1.3rem;font-weight:900;color:#111;letter-spacing:-0.5px;">R200 <span style="font-size:0.78rem;font-weight:500;color:#999;">/ 1,000 emails</span></div>
+      <div style="font-size:0.75rem;color:#666;margin-top:6px;line-height:1.55;">Target people by province. Direct inbox delivery. High open rates.</div>
+      <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;">
+        <span style="font-size:0.65rem;font-weight:600;background:#fff5f5;color:#e00;padding:3px 10px;border-radius:99px;border:1px solid #ffd0d0;">✓ Province targeting</span>
+        <span style="font-size:0.65rem;font-weight:600;background:#fff5f5;color:#e00;padding:3px 10px;border-radius:99px;border:1px solid #ffd0d0;">✓ Bulk delivery</span>
+        <span style="font-size:0.65rem;font-weight:600;background:#fff5f5;color:#e00;padding:3px 10px;border-radius:99px;border:1px solid #ffd0d0;">✓ HTML design</span>
+      </div>
+      <button style="margin-top:14px;width:100%;padding:11px;background:#e00;color:#fff;border:none;border-radius:12px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;letter-spacing:0.3px;">Select Plan</button>
+    </div>
+
+    <!-- NATIVE PACKAGE -->
+    <div id="gatePkgNative" onclick="gateSelectPkg('native',this)" style="background:#fff;border:2px solid #eee;border-radius:18px;padding:18px 20px;cursor:pointer;margin-bottom:20px;position:relative;overflow:hidden;transition:border 0.2s,box-shadow 0.2s;">
+      <div style="position:absolute;top:0;left:0;width:4px;height:100%;background:#e00;border-radius:18px 0 0 18px;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div style="font-size:0.65rem;font-weight:700;color:#e00;text-transform:uppercase;letter-spacing:1px;">Native Banner Ads</div>
+        <div id="gatePkgNativeCheck" style="width:18px;height:18px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;transition:all 0.2s;"></div>
+      </div>
+      <div style="font-size:1.3rem;font-weight:900;color:#111;letter-spacing:-0.5px;">R100 <span style="font-size:0.78rem;font-weight:500;color:#999;">/ 30 days</span></div>
+      <div style="font-size:0.75rem;color:#666;margin-top:6px;line-height:1.55;">100–500 daily views. Rotating banner on real websites. Real eyeballs.</div>
+      <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;">
+        <span style="font-size:0.65rem;font-weight:600;background:#fff5f5;color:#e00;padding:3px 10px;border-radius:99px;border:1px solid #ffd0d0;">✓ Auto-rotating</span>
+        <span style="font-size:0.65rem;font-weight:600;background:#fff5f5;color:#e00;padding:3px 10px;border-radius:99px;border:1px solid #ffd0d0;">✓ Multiple sites</span>
+        <span style="font-size:0.65rem;font-weight:600;background:#fff5f5;color:#e00;padding:3px 10px;border-radius:99px;border:1px solid #ffd0d0;">✓ Click tracking</span>
+      </div>
+      <button style="margin-top:14px;width:100%;padding:11px;background:#e00;color:#fff;border:none;border-radius:12px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;letter-spacing:0.3px;">Select Plan</button>
+    </div>
+
+    <!-- AD DETAILS FORM (shown after selection) -->
+    <div id="gateFormSection" style="display:none;">
+      <div style="font-size:0.65rem;font-weight:700;color:#bbb;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;">Your business details</div>
+
+      <div id="gateProvinceWrap" style="display:none;margin-bottom:10px;">
+        <select id="gateProvince" style="width:100%;padding:12px 14px;border:1.5px solid #eee;border-radius:12px;font-size:0.82rem;font-family:'Inter',sans-serif;background:#fff;outline:none;color:#333;">
+          <option value="">Select target province...</option>
+          <option>Gauteng</option><option>Western Cape</option><option>KwaZulu-Natal</option>
+          <option>Eastern Cape</option><option>Limpopo</option><option>Mpumalanga</option>
+          <option>North West</option><option>Free State</option><option>Northern Cape</option>
+        </select>
+      </div>
+
+      <div style="background:#fff;border:1.5px solid #eee;border-radius:16px;padding:16px;margin-bottom:12px;">
+        <input id="gateAdName" placeholder="Business / Ad name" style="width:100%;padding:11px 14px;border:1.5px solid #eee;border-radius:10px;font-size:0.82rem;font-family:'Inter',sans-serif;outline:none;margin-bottom:10px;box-sizing:border-box;color:#111;"/>
+        <input id="gateAdEmail" type="email" placeholder="Your email address" style="width:100%;padding:11px 14px;border:1.5px solid #eee;border-radius:10px;font-size:0.82rem;font-family:'Inter',sans-serif;outline:none;margin-bottom:10px;box-sizing:border-box;color:#111;"/>
+        <input id="gateAdUrl" placeholder="Website URL (optional)" style="width:100%;padding:11px 14px;border:1.5px solid #eee;border-radius:10px;font-size:0.82rem;font-family:'Inter',sans-serif;outline:none;margin-bottom:10px;box-sizing:border-box;color:#111;" onblur="if(this.value&&!this.value.startsWith('http'))this.value='https://'+this.value"/>
+        <input id="gateAdPhone" type="tel" placeholder="Phone number (optional)" style="width:100%;padding:11px 14px;border:1.5px solid #eee;border-radius:10px;font-size:0.82rem;font-family:'Inter',sans-serif;outline:none;margin-bottom:10px;box-sizing:border-box;color:#111;"/>
+
+        <!-- IMAGE UPLOAD -->
+<div style="margin-bottom:8px;">
+  <div style="font-size:0.75rem;font-weight:700;color:#333;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+    Business Images (add multiple)
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+    <button onclick="document.getElementById('gateAdImgInput').click()" style="background:#f9f9f9;border:1.5px dashed #ddd;border-radius:12px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;font-family:'Inter',sans-serif;" onmouseenter="this.style.borderColor='#e00'" onmouseleave="this.style.borderColor='#ddd'">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+      <span style="font-size:0.75rem;font-weight:700;color:#333;">Upload Photos</span>
+    </button>
+    <button onclick="toggleGateUrlInput()" style="background:#f9f9f9;border:1.5px dashed #ddd;border-radius:12px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;font-family:'Inter',sans-serif;" onmouseenter="this.style.borderColor='#e00'" onmouseleave="this.style.borderColor='#ddd'">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      <span style="font-size:0.75rem;font-weight:700;color:#333;">Paste URL</span>
+    </button>
+  </div>
+  <div id="gateUrlInputWrap" style="display:none;margin-bottom:8px;">
+    <div style="display:flex;gap:8px;">
+      <input id="gateDirectUrl" placeholder="https://image-url.com/photo.jpg" style="flex:1;padding:10px 14px;border:1.5px solid #eee;border-radius:10px;font-size:0.8rem;font-family:'Inter',sans-serif;outline:none;color:#111;"/>
+      <button onclick="applyGateUrl()" style="background:#e00;color:#fff;border:none;border-radius:10px;padding:10px 14px;cursor:pointer;font-size:0.8rem;font-weight:700;font-family:'Inter',sans-serif;">Add</button>
+    </div>
+  </div>
+  <input type="file" id="gateAdImgInput" accept="image/*" multiple style="display:none" onchange="gateUploadMultiImg(this)"/>
+  <div id="gateMultiImgGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(75px,1fr));gap:6px;margin-bottom:6px;"></div>
+  
+  
+  
+  
+</div>
+   <div id="gateImgStatus" style="font-size:0.75rem;color:#6366f1;display:none;margin-bottom:4px;">Uploading...</div>
+        <input type="hidden" id="gateAdImgUrl"/>
+      </div>
+
+      <div id="gateFormError" style="font-size:0.75rem;color:#e00;margin-bottom:10px;display:none;"></div>
+      <button onclick="gateSubmitAd()" style="width:100%;padding:15px;background:#000;color:#fff;border:none;border-radius:14px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;letter-spacing:0.3px;">
+        Submit Ad Application →
+      </button>
+    </div>
+  </div>
+</div>
+
+</div><!-- end app -->
+
+
+
+<script>
+function i(){ if(typeof lucide!=='undefined') lucide.createIcons(); }
+
+function openAppsLogin(){
+  // Bury the gate so modal appears on top
+  var gate = document.getElementById('publicGate');
+  if(gate) gate.style.zIndex = '1';
+  document.getElementById('appsLoginOverlay').style.cssText = 'display:block;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9998;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);';
+  document.getElementById('appsLoginModal').style.cssText = 'display:block;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;width:min(340px,92vw);background:#000;border-radius:24px;padding:36px 28px;box-shadow:0 30px 80px rgba(0,0,0,0.6);border:1px solid #222;font-family:Inter,sans-serif;';
+  setTimeout(()=>{ var i=document.getElementById('appsPwInput'); if(i) i.focus(); },100);
+  loadAppCount();
+}
+function closeAppsLogin(){
+  document.getElementById('appsLoginOverlay').style.cssText = 'display:none !important;position:fixed;';
+  document.getElementById('appsLoginModal').style.cssText = 'display:none !important;position:fixed;';
+  var gate = document.getElementById('publicGate');
+  if(gate) gate.style.zIndex = '';
+  var inp = document.getElementById('appsPwInput');
+  var err = document.getElementById('appsPwError');
+  if(inp) inp.value='';
+  if(err) err.style.display='none';
+}
+function checkAppsPw(){
+  var inp = document.getElementById('appsPwInput');
+  var err = document.getElementById('appsPwError');
+  if(inp && inp.value==='VNAXXTTM'){
+    closeAppsLogin();
+    var panel = document.getElementById('appsPanel');
+    panel.style.cssText = 'display:block;position:fixed;inset:0;z-index:9997;background:#f5f5f5;overflow-y:auto;font-family:Inter,sans-serif;';
+    document.body.style.overflow='hidden';
+    loadApplications();
+  } else {
+    if(err) err.style.display='block';
+    if(inp){ inp.value=''; inp.focus(); }
+  }
+}
+function closeAppsPanel(){
+  var panel = document.getElementById('appsPanel');
+  if(panel) panel.style.cssText = 'display:none !important;position:fixed;';
+  document.body.style.overflow='';
+}
+
+
+function confirmPayment(){
+  document.getElementById('paymentPage').style.display='none';
+  document.body.style.overflow='';
+  alert('Thank you! We will verify your payment and activate your ads within 24 hours. ✅');
+}
+
+
+// Trigger splash text animation
+window.addEventListener('load', function(){
+  setTimeout(() => {
+    document.getElementById('splashText').style.opacity = '1';
+    document.getElementById('splashText').style.transform = 'scale(1)';
+    document.getElementById('splashSub').style.opacity = '1';
+    document.getElementById('splashLine').style.transform = 'scaleX(1)';
+  }, 100);
+});
+
+
+
+
+
+function openInColab(){
+  navigator.clipboard.writeText(document.getElementById('codeOutput').textContent)
+    .then(() => window.open('https://colab.new', '_blank'));
+}
+
+
+
+/* ─── NAVIGATION ─── */
+const pageTitles = {
+  dashboard: ['__BEELZE__', 'Good morning, Beelze 👋'],
+  compose:   ['New Campaign', 'Compose your email blast'],
+  recipients:['Recipients', 'Manage your email list'],
+  config:    ['Setup', 'Accounts & proxy config'],
+  ads:       ['Advertising', 'Ad placements & revenue'],
+  settings:  ['Settings', 'App preferences'],
+};
+
+function goPage(name){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+  const navEl = document.getElementById('nav-' + name);
+  if(navEl) navEl.classList.add('active');
+    const titles = pageTitles[name] || [name, ''];
+  if (titles[0] === '__BEELZE__') {
+    startBeelzeAnim();
+  } else {
+    stopBeelzeAnim();
+    document.getElementById('pageTitle').textContent = titles[0];
+  }
+  document.getElementById('pageSubtitle').textContent = titles[1];
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  i();
+}
+
+/* ─── SEND MODE ─── */
+let sendMode = 'bcc';
+function setMode(m, btn){
+  sendMode = m;
+  document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+/* ─── EMAILS ─── */
+let emails = [];
+function addEmails(){
+  const raw = document.getElementById('emailInput').value;
+  const parts = raw.split(/[\n,;]+/).map(e=>e.trim()).filter(e=>e.includes('@'));
+  parts.forEach(e=>{ if(!emails.includes(e)) emails.push(e); });
+  document.getElementById('emailInput').value = '';
+  renderEmails();
+  updateStats();
+  saveToLS();
+}
+window.addEventListener('DOMContentLoaded', function(){
+  document.getElementById('emailInput').addEventListener('keydown', e=>{
+    if(e.key==='Enter'){ e.preventDefault(); addEmails(); }
+  });
+});
+function removeEmail(idx){ emails.splice(idx,1); renderEmails(); updateStats(); saveToLS(); }
+function renderEmails(){
+  const el = document.getElementById('emailList');
+  if(!emails.length){ el.innerHTML='<div class="list-empty">No emails added yet</div>'; }
+  else {
+    el.innerHTML = emails.map((e,idx)=>`
+      <div class="list-item">
+        <div style="display:flex;align-items:center;gap:9px">
+          <div style="width:28px;height:28px;border-radius:50%;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:#6366f1;flex-shrink:0">${e[0].toUpperCase()}</div>
+          <span>${e}</span>
+        </div>
+        <button class="rm" onclick="removeEmail(${idx})"><i data-lucide="x" style="width:13px;height:13px"></i></button>
+      </div>`).join('');
+  }
+  const rb = document.getElementById('recipientBadge');
+  const cb = document.getElementById('countBadge');
+  if(rb) rb.textContent = emails.length + ' emails';
+  if(cb) cb.textContent = emails.length + ' emails';
+  i();
+}
+
+/* ─── SENDER ACCOUNTS ─── */
+let senderAccounts = [];
+
+
+function addAccount(){
+  const raw = document.getElementById('accountInput').value;
+  // Split by newlines OR commas
+  const lines = raw.split(/[\n,]+/).map(l=>l.trim()).filter(l=>l.length>0);
+  lines.forEach(line => {
+    // Try "email - password" (with spaces) first, then "email-password" (no spaces)
+    let email = '', password = '';
+    const spaceMatch = line.match(/^([^\s]+@[^\s]+)\s*[-–]\s*(.+)$/);
+    if(spaceMatch){
+      email = spaceMatch[1].trim();
+      password = spaceMatch[2].trim();
+    } else {
+      // No spaces: find last @ then split at next dash after domain
+      const atIdx = line.lastIndexOf('@');
+      if(atIdx === -1) return;
+      const afterAt = line.indexOf('-', atIdx);
+      if(afterAt === -1) return;
+      email = line.substring(0, afterAt).trim();
+      password = line.substring(afterAt + 1).trim();
+    }
+    if(email.includes('@') && password && !senderAccounts.find(a=>a.email===email))
+      senderAccounts.push({email, password});
+  });
+  document.getElementById('accountInput').value='';
+  renderAccounts(); updateStats(); saveToLS();
+}
+
+
+function toggleGateUrlInput(){
+  const w = document.getElementById('gateUrlInputWrap');
+  w.style.display = w.style.display === 'block' ? 'none' : 'block';
+}
+function applyGateUrl(){
+  const url = document.getElementById('gateDirectUrl').value.trim();
+  if(!url) return;
+  document.getElementById('gateAdImgUrl').value = url;
+  document.getElementById('gateImgPreviewImg').src = url;
+  document.getElementById('gateImgPreview').style.display = 'block';
+  document.getElementById('gateUrlInputWrap').style.display = 'none';
+}
+
+
+function removeAccount(idx){ senderAccounts.splice(idx,1); renderAccounts(); updateStats(); saveToLS(); }
+function renderAccounts(){
+  const el = document.getElementById('accountList');
+  if(!senderAccounts.length){ el.innerHTML='<div class="list-empty">No accounts added</div>'; }
+  else {
+    el.innerHTML = senderAccounts.map((a,idx)=>`
+      <div class="list-item">
+        <div style="display:flex;align-items:center;gap:9px">
+          <div style="width:28px;height:28px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:#16a34a;flex-shrink:0">${a.email[0].toUpperCase()}</div>
+          <div><div style="font-weight:600;font-size:0.84rem">${a.email}</div><div style="font-size:0.7rem;color:var(--text3);letter-spacing:1px">${'•'.repeat(Math.min(a.password.length,12))}</div></div>
+        </div>
+        <button class="rm" onclick="removeAccount(${idx})"><i data-lucide="x" style="width:13px;height:13px"></i></button>
+      </div>`).join('');
+  }
+  document.getElementById('accountBadge').textContent = senderAccounts.length;
+  i();
+}
+
+/* ─── PROXIES ─── */
+let proxies = [];
+function parseProxies(){
+  const raw = document.getElementById('proxyRaw').value;
+  const lines = raw.split(/[\n;]+/).map(l=>l.trim()).filter(l=>l.length>0);
+  proxies = [];
+  lines.forEach(line => {
+    const ipM   = line.match(/IP:\s*([\d.]+)/i);
+    const portM = line.match(/PORT:\s*(\d+)/i);
+    const userM = line.match(/USERNAME:\s*(\S+)/i);
+    const passM = line.match(/PASSWORD:\s*(\S+)/i);
+    if(ipM && portM){
+      proxies.push({ ip:ipM[1], port:portM[1], user:userM?userM[1]:'', pass:passM?passM[1]:'' });
+      return;
+    }
+    const p = line.split(':');
+    if(p.length>=2 && p[0].match(/^\d+\.\d+/))
+      proxies.push({ ip:p[0], port:p[1], user:p[2]||'', pass:p[3]||'' });
+  });
+  const hint = document.getElementById('proxyHint');
+  hint.innerHTML = proxies.length > 0
+    ? `<i data-lucide="check-circle" style="width:11px;height:11px;color:#16a34a"></i> <span style="color:#16a34a">${proxies.length} proxies parsed</span>`
+    : `<i data-lucide="info" style="width:11px;height:11px"></i> Paste one or many — parsed automatically`;
+  document.getElementById('proxyBadge').textContent = proxies.length;
+  renderProxies();
+  updateStats(); i();
+}
+
+function removeProxy(idx){ proxies.splice(idx,1); renderProxies(); document.getElementById('proxyBadge').textContent=proxies.length; updateStats(); }
+
+function renderProxies(){
+  const el = document.getElementById('proxyList');
+  if(!el) return;
+  if(!proxies.length){ el.innerHTML='<div class="list-empty">No proxies added</div>'; return; }
+  el.innerHTML = proxies.map((p,idx)=>`
+    <div class="list-item">
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:28px;height:28px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:#2563eb;flex-shrink:0">IP</div>
+        <div>
+          <div style="font-weight:600;font-size:0.82rem">${p.ip}:${p.port}</div>
+          <div style="font-size:0.7rem;color:var(--text3)">${p.user ? p.user : 'no auth'}</div>
+        </div>
+      </div>
+      <button class="rm" onclick="removeProxy(${idx})"><i data-lucide="x" style="width:13px;height:13px"></i></button>
+    </div>`).join('');
+  i();
+}
+
+
+/* ─── DOMAINS ─── */
+let domains = [];
+function addDomain(){
+  const text = document.getElementById('dText').value.trim();
+  const url  = document.getElementById('dUrl').value.trim();
+  if(!url) return;
+  domains.push({ text: text||url, url });
+  document.getElementById('dText').value='';
+  document.getElementById('dUrl').value='';
+  renderDomains(); saveToLS();
+}
+function removeDomain(idx){ domains.splice(idx,1); renderDomains(); saveToLS(); }
+function renderDomains(){
+  document.getElementById('domainList').innerHTML = domains.map((d,idx)=>`
+    <div class="domain-chip">
+      <a href="${d.url}" target="_blank">${d.text} — ${d.url}</a>
+      <button onclick="removeDomain(${idx})"><i data-lucide="x" style="width:13px;height:13px"></i></button>
+    </div>`).join('');
+  i();
+}
+
+/* ─── IMAGES ─── */
+let uploadedImages = [];
+const IMGBB_KEY = '7582cc8e40651016b8391c34b4216727';
+
+function addDirectUrl(){
+  const url=document.getElementById('directImgUrl').value.trim(); if(!url) return;
+  const idx=uploadedImages.length; uploadedImages.push({name:url,url});
+  addImgCard(url,url,idx);
+  document.getElementById('directImgUrl').value='';
+  document.getElementById('urlInputWrap').style.display='none';
+}
+async function uploadImages(files){
+  const status = document.getElementById('uploadStatus');
+  for(const file of files){
+    const idx = uploadedImages.length;
+    uploadedImages.push(null);
+    status.innerHTML = `<div style="margin-bottom:8px;"><div style="font-size:0.78rem;color:#555;margin-bottom:5px;">Uploading <strong>${file.name}</strong>...</div><div style="background:#e5e7eb;border-radius:99px;height:6px;overflow:hidden;"><div id="uploadBar" style="height:100%;width:0%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:99px;transition:width 0.3s;"></div></div></div>`;
+    let prog=0;
+    const barTimer=setInterval(()=>{ prog=Math.min(prog+Math.random()*18,85); const b=document.getElementById('uploadBar'); if(b) b.style.width=prog+'%'; },200);
+    const form=new FormData(); form.append('image',file);
+    const res=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`,{method:'POST',body:form});
+    const data=await res.json();
+    clearInterval(barTimer);
+    const b=document.getElementById('uploadBar'); if(b) b.style.width='100%';
+    if(data.success){
+      const url=data.data.url;
+      uploadedImages[idx]={name:file.name,url};
+      setTimeout(()=>{ status.innerHTML=`<div style="font-size:0.78rem;color:#16a34a;margin-bottom:8px;">✓ ${file.name} uploaded!</div>`; addImgCard(url,file.name,idx); },300);
+    } else {
+      status.innerHTML=`<div style="font-size:0.78rem;color:#ef4444;margin-bottom:8px;">✕ Upload failed</div>`;
+    }
+  }
+  document.getElementById('imgInput').value='';
+}
+
+function addImgCard(url,name,idx){
+  const grid=document.getElementById('imgGrid'); const div=document.createElement('div');
+  div.className='img-card'; div.id='imgcard_'+idx;
+  div.innerHTML=`<button class="rm-btn" onclick="removeImg(${idx})" style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.6);border:none;border-radius:50%;width:24px;height:24px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;"><i data-lucide="x" style="width:12px;height:12px"></i></button><img src="${url}" alt="${name}" style="width:100%;height:80px;object-fit:cover;display:block;border-radius:10px 10px 0 0;"/><div style="padding:5px 7px;font-size:0.65rem;color:#666;word-break:break-all;">${name.length>22?name.substring(0,22)+'…':name}</div>`;
+  grid.appendChild(div); i();
+}
+function removeImg(idx){ uploadedImages[idx]=null; const el=document.getElementById('imgcard_'+idx); if(el) el.remove(); }
+
+/* ─── STATS ─── */
+function updateStats(){
+  const s1 = document.getElementById('statSent');
+  const s2 = document.getElementById('statRecipients');
+  const s3 = document.getElementById('statProxies');
+  const s4 = document.getElementById('statAccounts');
+  if(s1) s1.textContent = sessionSent;
+  if(s2) s2.textContent = emails.length;
+  if(s3) s3.textContent = proxies.length;
+  if(s4) s4.textContent = senderAccounts.length;
+}
+let sessionSent = 0;
+
+/* ─── LOCALSTORAGE PERSISTENCE ─── */
+function saveToLS() {
+  localStorage.setItem('beelze_emails',   JSON.stringify(emails));
+  localStorage.setItem('beelze_accounts', JSON.stringify(senderAccounts));
+  localStorage.setItem('beelze_proxies',  JSON.stringify(proxies));
+  localStorage.setItem('beelze_proxyRaw', document.getElementById('proxyRaw').value);
+  localStorage.setItem('beelze_domains',  JSON.stringify(domains));
+  localStorage.setItem('beelze_images',   JSON.stringify(uploadedImages.filter(Boolean)));
+  localStorage.setItem('beelze_subject',  document.getElementById('cSubject').value);
+  localStorage.setItem('beelze_body',     document.getElementById('cBody').value);
+  localStorage.setItem('beelze_sender',   document.getElementById('cSenderName').value);
+  localStorage.setItem('beelze_smtpHost', document.getElementById('smtpHost').value);
+  localStorage.setItem('beelze_smtpPort', document.getElementById('smtpPort').value);
+}
+
+function loadFromLS() {
+  emails          = JSON.parse(localStorage.getItem('beelze_emails')   || '[]');
+  senderAccounts  = JSON.parse(localStorage.getItem('beelze_accounts') || '[]');
+  proxies         = JSON.parse(localStorage.getItem('beelze_proxies')  || '[]');
+  domains         = JSON.parse(localStorage.getItem('beelze_domains')  || '[]');
+  uploadedImages  = JSON.parse(localStorage.getItem('beelze_images')   || '[]');
+
+  const proxyRaw  = localStorage.getItem('beelze_proxyRaw');
+  if (proxyRaw)  document.getElementById('proxyRaw').value      = proxyRaw;
+  const subject   = localStorage.getItem('beelze_subject');
+  if (subject)   document.getElementById('cSubject').value      = subject;
+  const body      = localStorage.getItem('beelze_body');
+  if (body)      document.getElementById('cBody').value         = body;
+  const sender    = localStorage.getItem('beelze_sender');
+  if (sender)    document.getElementById('cSenderName').value   = sender;
+  const smtpHost  = localStorage.getItem('beelze_smtpHost');
+  if (smtpHost)  document.getElementById('smtpHost').value      = smtpHost;
+  const smtpPort  = localStorage.getItem('beelze_smtpPort');
+  if (smtpPort)  document.getElementById('smtpPort').value      = smtpPort;
+
+  renderEmails(); renderAccounts(); renderDomains(); updateStats();
+
+  // Re-render images
+  uploadedImages.forEach((img, idx) => { if(img) addImgCard(img.url, img.name, idx); });
+
+  // Proxy count badge
+  document.getElementById('proxyBadge').textContent = proxies.length;
+}
+
+
+
+/* ─── ADS ─── */
+function toggleAd(el, placement){
+  console.log('Ad placement toggled:', placement, el.checked ? 'ON' : 'OFF');
+}
+function copySnippet(){
+  const code = document.getElementById('adSnippet').textContent;
+  navigator.clipboard.writeText(code);
+  const btn = event.target.closest('.copy-btn');
+  btn.classList.add('copied'); btn.innerHTML='<i data-lucide="check" style="width:12px;height:12px"></i> Copied!'; i();
+  setTimeout(()=>{ btn.classList.remove('copied'); btn.innerHTML='<i data-lucide="copy" style="width:12px;height:12px"></i> Copy'; i(); },2500);
+}
+function openColab(){ window.open('https://colab.research.google.com','_blank'); }
+
+let selectedPkg = '';
+function gateSelectPkg(pkg, el) {
+  selectedPkg = pkg;
+  document.getElementById('gatePkgEmailCheck').innerHTML = '';
+  document.getElementById('gatePkgNativeCheck').innerHTML = '';
+  document.getElementById('gatePkgEmailCheck').style.border = '2px solid #ddd';
+  document.getElementById('gatePkgNativeCheck').style.border = '2px solid #ddd';
+  const checkEl = document.getElementById('gatePkg' + (pkg==='email'?'Email':'Native') + 'Check');
+  checkEl.innerHTML = '✓';
+  checkEl.style.cssText += ';background:#e00;color:#fff;border:2px solid #e00;font-size:0.7rem;font-weight:900;';
+  document.getElementById('gateProvinceWrap').style.display = pkg === 'email' ? 'block' : 'none';
+  document.getElementById('gateFormSection').style.display = 'block';
+  document.getElementById('gateFormSection').scrollIntoView({ behavior:'smooth' });
+}
+
+let gateImages = [];
+function gateUploadMultiImg(input) {
+  const status = document.getElementById('gateImgStatus');
+  status.style.display = 'block';
+  status.textContent = 'Uploading...';
+  Array.from(input.files).forEach(async file => {
+    const form = new FormData(); form.append('image', file);
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method:'POST', body:form });
+    const data = await res.json();
+    if (data.success) {
+      gateImages.push(data.data.url);
+      renderGateImgGrid();
+      status.textContent = '✅ Uploaded!';
+      setTimeout(() => { status.style.display = 'none'; }, 2000);
+    }
+  });
+}
+
+function renderGateImgGrid() {
+  const grid = document.getElementById('gateMultiImgGrid');
+  if (!grid) return;
+  grid.innerHTML = gateImages.map((url, idx) => `
+    <div style="position:relative;border-radius:8px;overflow:hidden;">
+      <img src="${url}" style="width:100%;height:65px;object-fit:cover;display:block;">
+      <button onclick="gateImages.splice(${idx},1);renderGateImgGrid()" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.6);border:none;border-radius:50%;width:18px;height:18px;color:#fff;cursor:pointer;font-size:10px;">✕</button>
+    </div>`).join('');
+}
+
+async function gateSubmitAd() {
+  const name    = document.getElementById('gateAdName').value.trim();
+  const email   = document.getElementById('gateAdEmail').value.trim();
+  const url     = document.getElementById('gateAdUrl').value.trim();
+  const phone   = document.getElementById('gateAdPhone').value.trim();
+  const province= document.getElementById('gateProvince') ? document.getElementById('gateProvince').value : '';
+  const errEl   = document.getElementById('gateFormError');
+
+  if (!name)  { errEl.style.display='block'; errEl.textContent='Business name is required.'; return; }
+  if (!email) { errEl.style.display='block'; errEl.textContent='Email address is required.'; return; }
+  if (!selectedPkg) { errEl.style.display='block'; errEl.textContent='Please select a package above.'; return; }
+  errEl.style.display = 'none';
+
+  const submitBtn = document.querySelector('[onclick="gateSubmitAd()"]');
+  submitBtn.textContent = 'Submitting...';
+  submitBtn.disabled = true;
+
+  const payload = {
+    name, email, url, phone, province,
+    pkg: selectedPkg,
+    imgUrl: gateImages[0] || '',
+    images: gateImages,
+    submittedAt: new Date().toISOString()
+  };
+
+  try {
+    await fetch(APPS_FIREBASE, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    
+    submitBtn.textContent = '✅ Application Submitted!';
+    submitBtn.style.background = '#16a34a';
+    document.getElementById('gateAdName').value = '';
+    document.getElementById('gateAdEmail').value = '';
+    document.getElementById('gateAdUrl').value = '';
+    document.getElementById('gateAdPhone').value = '';
+    gateImages = [];
+    renderGateImgGrid();
+    loadAppCount();
+    setTimeout(()=>{
+      document.getElementById('paymentPage').style.display='block';
+      document.body.style.overflow='hidden';
+      window.scrollTo(0,0);
+    }, 800);
+
+    
+  } catch(e) {
+    submitBtn.textContent = '❌ Failed — try again';
+    submitBtn.disabled = false;
+  }
+}
+
+async function loadAppCount() {
+  try {
+    const res = await fetch(APPS_FIREBASE);
+    const data = await res.json();
+    const count = data ? Object.keys(data).length : 0;
+    localStorage.setItem('beelze_app_count', count);
+    const badge = document.getElementById('appCountBadge');
+    if (badge) {
+      badge.textContent = count;
+      badge.style.display = count > 0 ? 'inline-block' : 'none';
+    }
+  } catch(e) {
+    // Firebase unreachable — use saved count
+    const saved = localStorage.getItem('beelze_app_count');
+    if (saved) {
+      const badge = document.getElementById('appCountBadge');
+      if (badge) {
+        badge.textContent = saved;
+        badge.style.display = parseInt(saved) > 0 ? 'inline-block' : 'none';
+      }
+    }
+  }
+}
+function initAppCount() {
+  const saved = localStorage.getItem('beelze_app_count');
+  const badge = document.getElementById('appCountBadge');
+  if (badge && saved) {
+    badge.textContent = saved;
+    badge.style.display = parseInt(saved) > 0 ? 'inline-block' : 'none';
+  }
+}
+
+/* ─── APPLICATIONS PANEL ─── */
+const APPS_FIREBASE = 'https://streamx-a4099-default-rtdb.firebaseio.com/beelzeAdApplications.json';
+
+function openAppsLogin(){
+  document.getElementById('appsLoginOverlay').style.display='block';
+  document.getElementById('appsLoginModal').style.display='block';
+  setTimeout(()=>document.getElementById('appsPwInput').focus(),100);
+}
+function closeAppsLogin(){
+  document.getElementById('appsLoginOverlay').style.display='none';
+  document.getElementById('appsLoginModal').style.display='none';
+  document.getElementById('appsPwInput').value='';
+  document.getElementById('appsPwError').style.display='none';
+}
+function checkAppsPw(){
+  if(document.getElementById('appsPwInput').value==='VNAXXTTM'){
+    closeAppsLogin();
+    document.getElementById('appsPanel').style.display='block';
+    loadApplications();
+  } else {
+    document.getElementById('appsPwError').style.display='block';
+    document.getElementById('appsPwInput').value='';
+    document.getElementById('appsPwInput').focus();
+  }
+}
+function closeAppsPanel(){
+  document.getElementById('appsPanel').style.display='none';
+}
+
+
+async function loadApplications(){
+  document.getElementById('appsList').innerHTML='<div style="text-align:center;padding:60px;color:#aaa;font-size:0.85rem;display:flex;flex-direction:column;align-items:center;gap:12px;"><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'#ccc\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><line x1=\'12\' y1=\'2\' x2=\'12\' y2=\'6\'/><line x1=\'12\' y1=\'18\' x2=\'12\' y2=\'22\'/><line x1=\'4.93\' y1=\'4.93\' x2=\'7.76\' y2=\'7.76\'/><line x1=\'16.24\' y1=\'16.24\' x2=\'19.07\' y2=\'19.07\'/><line x1=\'2\' y1=\'12\' x2=\'6\' y2=\'12\'/><line x1=\'18\' y1=\'12\' x2=\'22\' y2=\'12\'/><line x1=\'4.93\' y1=\'19.07\' x2=\'7.76\' y2=\'16.24\'/><line x1=\'16.24\' y1=\'7.76\' x2=\'19.07\' y2=\'4.93\'/></svg>Loading...</div>';
+  try{
+    const res = await fetch(APPS_FIREBASE);
+    const data = await res.json();
+    if(!data){ document.getElementById('appsList').innerHTML='<div style="text-align:center;padding:60px;color:#aaa;font-size:0.85rem;">No applications yet</div>'; return; }
+    const entries = Object.entries(data).reverse();
+    document.getElementById('appsCount').textContent = entries.length;
+    document.getElementById('appsList').innerHTML = entries.map(([key,a])=>{
+      const imgs = a.images && a.images.length ? a.images : (a.imgUrl ? [a.imgUrl] : []);
+      const imgsHtml = imgs.length ? imgs.map((url,idx)=>`
+        <div style="position:relative;border-radius:10px;overflow:hidden;flex-shrink:0;">
+          <img src="${url}" style="width:90px;height:65px;object-fit:cover;display:block;cursor:pointer;" onclick="window.open('${url}','_blank')" title="Click to open full size">
+          <a href__="${url}" download target="_blank" style="position:absolute;bottom:3px;right:3px;background:rgba(0,0,0,0.65);border-radius:6px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;text-decoration:none;" title="Download image">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </a>
+        </div>`).join('') : '<div style="width:90px;height:65px;background:#f3f4f6;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:0.7rem;flex-shrink:0;">No image</div>';
+      return `
+      <div style="background:#fff;border-radius:16px;overflow:hidden;margin-bottom:16px;box-shadow:0 2px 14px rgba(0,0,0,0.07);border:1px solid #f0f0f0;">
+        <!-- images row -->
+        <div style="display:flex;gap:8px;padding:12px 14px 0;overflow-x:auto;">${imgsHtml}</div>
+        <div style="padding:14px 16px;">
+          <!-- name + package badge -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px;">
+            <div style="font-size:1rem;font-weight:800;color:#111;flex:1;">${a.name||'Unknown Business'}</div>
+            <span style="background:${a.pkg==='email'?'#fee2e2':'#ede9fe'};color:${a.pkg==='email'?'#dc2626':'#6366f1'};font-size:0.62rem;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;white-space:nowrap;">${a.pkg||'—'}</span>
+          </div>
+          <!-- details -->
+          <div style="display:flex;flex-direction:column;gap:9px;font-size:0.82rem;color:#555;margin-bottom:14px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.email||'—'}</span>
+              <button onclick="navigator.clipboard.writeText('${a.email||''}');this.style.color='#16a34a';setTimeout(()=>this.style.color='',2000)" style="background:none;border:none;cursor:pointer;font-size:0.72rem;color:#6366f1;font-weight:700;font-family:'Inter',sans-serif;white-space:nowrap;">Copy</button>
+            </div>
+            ${a.url?`<div style="display:flex;align-items:center;gap:8px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0070CD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              <a href__="${a.url}" target="_blank" style="flex:1;color:#0070CD;font-weight:600;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.url}</a>
+              <button onclick="navigator.clipboard.writeText('${a.url}');this.style.color='#16a34a';setTimeout(()=>this.style.color='',2000)" style="background:none;border:none;cursor:pointer;font-size:0.72rem;color:#6366f1;font-weight:700;font-family:'Inter',sans-serif;white-space:nowrap;">Copy</button>
+            </div>`:''}
+            ${a.phone?`<div style="display:flex;align-items:center;gap:8px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 14a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.59 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 10a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 17.22z"/></svg>
+              <span>${a.phone}</span>
+              <button onclick="navigator.clipboard.writeText('${a.phone}');this.style.color='#16a34a';setTimeout(()=>this.style.color='',2000)" style="background:none;border:none;cursor:pointer;font-size:0.72rem;color:#6366f1;font-weight:700;font-family:'Inter',sans-serif;white-space:nowrap;margin-left:auto;">Copy</button>
+            </div>`:''}
+            ${a.province?`<div style="display:flex;align-items:center;gap:8px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span>${a.province}</span>
+            </div>`:''}
+            <div style="display:flex;align-items:center;gap:8px;color:#bbb;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span style="font-size:0.72rem;">${a.submittedAt ? new Date(a.submittedAt).toLocaleString() : 'Unknown time'}</span>
+            </div>
+          </div>
+          <!-- delete button -->
+          <button onclick="deleteApplication('${key}',this)" style="width:100%;padding:11px;background:#fff0f0;color:#dc2626;border:1.5px solid #fecaca;border-radius:10px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:7px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            Remove Application
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e){
+    document.getElementById('appsList').innerHTML='<div style="text-align:center;padding:40px;color:#e00;font-size:0.85rem;">Failed to load. Check connection.</div>';
+  }
+}
+
+async function deleteApplication(key, btn){
+  if(!confirm('Delete this application?')) return;
+  btn.textContent='Deleting...';
+  await fetch(`https://streamx-a4099-default-rtdb.firebaseio.com/beelzeAdApplications/${key}.json`, { method:'DELETE' });
+  await loadAppCount();
+  loadApplications();
+}
+
+/* ─── GENERATE PYTHON ─── */
+function generate(){
+  const smtpHost     = document.getElementById('smtpHost').value.trim();
+  const smtpPort     = document.getElementById('smtpPort').value.trim();
+  const senderEmail  = senderAccounts.length > 0 ? senderAccounts[0].email : 'sender@gmail.com';
+  const subject      = document.getElementById('cSubject').value.trim() || 'Hello from BeelzeAds';
+  const batchSize    = document.getElementById('cBatchSize').value.trim() || '50';
+  const emailsPerAcc = document.getElementById('cEmailsPerAcc').value.trim() || '100';
+  const bodyMsg      = document.getElementById('cBody').value.trim() || 'Hello {name},\n\nYour message here.';
+  const senderNameV  = document.getElementById('cSenderName').value.trim() || 'BeelzeAds';
+  const proxyType    = document.getElementById('proxyType').value;
+
+  const allAccounts = senderAccounts.length > 0 ? senderAccounts : [{ email: senderEmail, password: '(your-app-password-here)' }];
+
+  const imgHtml    = uploadedImages.filter(Boolean).map(img=>`  <img src="${img.url}" alt="image" style="max-width:100%;margin:10px 0;border-radius:10px;"/>`).join('\n');
+  const domainHtml = domains.map(d=>`  <p style="margin:8px 0;"><a href="${d.url}" target="_blank" style="color:#6366f1;font-weight:700;text-decoration:none;">${d.text}</a></p>`).join('\n');
+  const bodyLines  = bodyMsg.split('\n').map(l=>`  <p style="margin:4px 0;">${l}</p>`).join('\n');
+  const unsubEmail = senderAccounts.length > 0 ? senderAccounts[0].email : 'beelzeapps@gmail.com';
+  const htmlBody   = `<html><body style="font-family:Arial,sans-serif;color:#111;max-width:600px;margin:0 auto;padding:20px;">\n${bodyLines}\n${imgHtml}\n${domainHtml}\n  <p style="margin-top:20px;color:#555;">Best regards,<br/><strong>${senderNameV}</strong></p>\n  <hr style="margin:30px 0;border:none;border-top:1px solid #eee;"/>\n  <p style="font-size:11px;color:#aaa;text-align:center;">You received this email because you signed up or opted in.<br/><a href="mailto:${unsubEmail}?subject=Unsubscribe" style="color:#aaa;">Unsubscribe</a></p>\n</body></html>`;
+  const textBody   = bodyMsg + `\n\nBest regards,\n${senderNameV}`;
+
+  const accountsPy  = allAccounts.map(a=>`    {"email": "${a.email}", "password": "${a.password}"},`).join('\n');
+  const proxiesPy   = proxies.length > 0
+    ? proxies.map(p=>`    {"ip": "${p.ip}", "port": ${p.port}, "user": "${p.user}", "pass": "${p.pass}"},`).join('\n')
+    : '    # No proxies — running direct SMTP';
+  const recipientsPy = emails.map(e=>`    {"email": "${e}", "name": "Friend"},`).join('\n');
+  const useProxy    = proxies.length > 0 ? 'True' : 'False';
+
+  const code = `#!/usr/bin/env python3
+"""
+╔══════════════════════════════════════════════════════════╗
+║           BeelzeAds — Pro Mail Campaign Engine           ║
+║    Proxy IP Rotation + Account Rotation + BCC Blast      ║
+║                  Powered by BeelzeAds v2                 ║
+╚══════════════════════════════════════════════════════════╝
+
+FEATURES:
+  ✅ IP rotates on every email (individual mode) or every batch (BCC)
+  ✅ Account switch delay: random 20–50 seconds
+  ✅ BCC batch delay:      random 40–120 seconds
+  ✅ Per-email delay:      random 5–15 seconds
+  ✅ SOCKS5/SOCKS4/HTTP proxy support
+
+REQUIREMENTS:
+  pip install PySocks
+
+HOW TO RUN:
+  1. Copy this script
+  2. Open https://colab.research.google.com
+  3. New Notebook → Paste → Run first cell: !pip install PySocks
+  4. Run second cell with this script
+"""
+
+import smtplib, ssl, time, random, datetime
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+${proxies.length > 0 ? 'import socks' : '# PySocks not needed — no proxies configured'}
+
+# ══════════════════════════════════════════
+#                  CONFIG
+# ══════════════════════════════════════════
+SMTP_HOST       = "${smtpHost}"
+SMTP_PORT       = ${smtpPort}
+SUBJECT         = "${subject}"
+SEND_MODE       = "${sendMode}"       # "bcc" or "individual"
+BATCH_SIZE      = ${batchSize}        # emails per BCC batch
+EMAILS_PER_ACCT = ${emailsPerAcc}     # before switching sender
+PROXY_TYPE_STR  = "${proxyType}"      # socks5 / socks4 / http
+USE_PROXY       = ${useProxy}
+
+# Email body
+BODY_HTML = """${htmlBody.replace(/\\/g, '\\\\').replace(/"""/g, "'''")}"""
+
+BODY_TEXT = """${textBody.replace(/\\/g, '\\\\').replace(/"""/g, "'''")}"""
+
+# Sender accounts — format: {email, password}
+ACCOUNTS = [
+${accountsPy}
+]
+
+# Proxy list — leave empty to send direct
+PROXIES = [
+${proxiesPy}
+]
+
+# Recipients
+RECIPIENTS = [
+${recipientsPy || '    # Add recipients above'}
+]
+
+# ══════════════════════════════════════════
+#               PROXY SETUP
+# ══════════════════════════════════════════
+${proxies.length > 0 ? `PROXY_MAP = {
+    "socks5": socks.SOCKS5,
+    "socks4": socks.SOCKS4,
+    "http":   socks.HTTP,
+}` : ''}
+
+def ts():
+    return datetime.datetime.now().strftime("%H:%M:%S")
+
+def get_proxy(idx):
+    if not USE_PROXY or not PROXIES:
+        return None
+    return PROXIES[idx % len(PROXIES)]
+
+${proxies.length > 0 ? `def smtp_via_proxy(proxy, sender_email, sender_pass):
+    """Connect SMTP through a SOCKS/HTTP proxy."""
+    sock = socks.socksocket()
+    sock.set_proxy(
+        PROXY_MAP.get(PROXY_TYPE_STR, socks.SOCKS5),
+        proxy["ip"],
+        int(proxy["port"]),
+        True,
+        proxy["user"] if proxy["user"] else None,
+        proxy["pass"] if proxy["pass"] else None,
+    )
+    sock.connect((SMTP_HOST, SMTP_PORT))
+    # Wrap socket into SMTP
+    conn = smtplib.SMTP.__new__(smtplib.SMTP)
+    conn.sock = sock
+    conn.file = sock.makefile("rb")
+    conn._tls_required = False
+    conn.ehlo_resp = None
+    conn.does_esmtp = False
+    conn.default_port = SMTP_PORT
+    conn.timeout = 30
+    conn.getreply()
+    conn.ehlo()
+    ctx = ssl.create_default_context()
+    conn.starttls(context=ctx)
+    conn.ehlo()
+    conn.login(sender_email, sender_pass)
+    return conn` : ''}
+
+def smtp_direct(sender_email, sender_pass):
+    """Connect SMTP directly (no proxy)."""
+    ctx = ssl.create_default_context()
+    conn = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
+    conn.starttls(context=ctx)
+    conn.login(sender_email, sender_pass)
+    return conn
+
+def get_smtp(proxy, sender_email, sender_pass):
+    if USE_PROXY and proxy:
+        print(f"  [PROXY] {proxy['ip']}:{proxy['port']} ({PROXY_TYPE_STR.upper()})")
+        ${proxies.length > 0 ? 'return smtp_via_proxy(proxy, sender_email, sender_pass)' : 'return smtp_direct(sender_email, sender_pass)'}
+    return smtp_direct(sender_email, sender_pass)
+
+# ══════════════════════════════════════════
+#            EMAIL BUILDERS
+# ══════════════════════════════════════════
+def build_bcc(sender_email):
+    msg = MIMEMultipart("alternative")
+    msg["From"] = sender_email
+    msg["To"]      = sender_email
+    msg["Subject"] = SUBJECT
+    msg.attach(MIMEText(BODY_TEXT.replace("{name}", "Friend"), "plain"))
+    msg.attach(MIMEText(BODY_HTML.replace("{name}", "Friend"), "html"))
+    return msg
+
+def build_individual(sender_email, recipient):
+    msg = MIMEMultipart("alternative")
+    msg["From"]    = sender_email
+    msg["To"]      = recipient["email"]
+    msg["Subject"] = SUBJECT
+    name = recipient.get("name", "Friend")
+    msg.attach(MIMEText(BODY_TEXT.format(name=name), "plain"))
+    msg.attach(MIMEText(BODY_HTML.format(name=name), "html"))
+    return msg
+
+# ══════════════════════════════════════════
+#               MAIN ENGINE
+# ══════════════════════════════════════════
+def run():
+    queue        = list(RECIPIENTS)
+    total        = len(queue)
+    sent         = 0
+    failed       = 0
+    proxy_idx    = 0
+
+    print("")
+    print("╔══════════════════════════════════════════════════════════╗")
+    print("║             BeelzeAds — Campaign Starting                ║")
+    print("╚══════════════════════════════════════════════════════════╝")
+    print(f"  Time        : {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"  Recipients  : {total}")
+    print(f"  Accounts    : {len(ACCOUNTS)}")
+    print(f"  Proxies     : {len(PROXIES)}")
+    print(f"  Mode        : {SEND_MODE.upper()}")
+    print(f"  Batch Size  : {BATCH_SIZE}")
+    print(f"  Subject     : {SUBJECT}")
+    print("─" * 60)
+
+    for acc_idx, account in enumerate(ACCOUNTS):
+        if not queue:
+            print("\\n  ✅ All recipients covered!")
+            break
+
+        batch      = queue[:EMAILS_PER_ACCT]
+        queue      = queue[EMAILS_PER_ACCT:]
+        acc_email  = account["email"]
+        acc_pass   = account["password"]
+
+        print(f"\\n▶ Account {acc_idx+1}/{len(ACCOUNTS)}: {acc_email}")
+        print(f"  Sending to: {len(batch)} recipients")
+
+        sub_batches = [batch[i:i+BATCH_SIZE] for i in range(0, len(batch), BATCH_SIZE)]
+
+        for sb_idx, sub in enumerate(sub_batches):
+            proxy = get_proxy(proxy_idx)
+            proxy_idx += 1
+
+            proxy_label = f"{proxy['ip']}:{proxy['port']}" if proxy else "Direct"
+            print(f"\\n  ┌ Sub-batch {sb_idx+1}/{len(sub_batches)}")
+            print(f"  │ Emails  : {len(sub)}")
+            print(f"  │ Proxy   : {proxy_label}")
+            print(f"  │ Time    : {ts()}")
+
+            try:
+                server = get_smtp(proxy, acc_email, acc_pass)
+                print(f"  │ Login   : ✅ OK")
+
+                if SEND_MODE == "bcc":
+                    try:
+                        msg    = build_bcc(acc_email)
+                        all_to = [acc_email] + [r["email"] for r in sub]
+                        server.sendmail(acc_email, all_to, msg.as_string())
+                        sent  += len(sub)
+                        print(f"  └ ✅ BCC sent {len(sub)} | Total: {sent}/{total}")
+                    except Exception as e:
+                        failed += len(sub)
+                        print(f"  └ ❌ BCC Failed: {e}")
+                else:
+                    for i_idx, r in enumerate(sub, 1):
+                        # Rotate proxy every email in individual mode
+                        if i_idx > 1:
+                            proxy = get_proxy(proxy_idx)
+                            proxy_idx += 1
+                            try:
+                                server.quit()
+                            except: pass
+                            try:
+                                server = get_smtp(proxy, acc_email, acc_pass)
+                            except Exception as e:
+                                print(f"    [PROXY FAIL] {e}")
+                                continue
+                        try:
+                            msg = build_individual(acc_email, r)
+                            server.sendmail(acc_email, [r["email"]], msg.as_string())
+                            sent += 1
+                            proxy_label = f"{proxy['ip']}" if proxy else "Direct"
+                            print(f"  │ [{i_idx}/{len(sub)}] ✅ {r['email']} via {proxy_label} | Total: {sent}")
+                        except Exception as e:
+                            failed += 1
+                            print(f"  │ [{i_idx}/{len(sub)}] ❌ {r['email']} | {e}")
+                        # Per-email delay
+                        if i_idx < len(sub):
+                            d = random.randint(5, 15)
+                            print(f"  │ ⏱  Next in {d}s…")
+                            time.sleep(d)
+                    print(f"  └ Sub-batch done")
+
+                try: server.quit()
+                except: pass
+
+            except Exception as e:
+                print(f"  └ ❌ Connection failed: {e}")
+
+            # BCC batch delay: random 40–120s
+            if sb_idx < len(sub_batches) - 1:
+                d = random.randint(40, 120)
+                print(f"\\n  ⏳ Next batch in {d}s (IP rotating)…")
+                time.sleep(d)
+
+        # Account switch delay: random 20–50s
+        if queue and acc_idx < len(ACCOUNTS) - 1:
+            d = random.randint(20, 50)
+            print(f"\\n  🔄 Switching account in {d}s…")
+            time.sleep(d)
+
+    print("\\n╔══════════════════════════════════════════════════════════╗")
+    print(f"║  CAMPAIGN COMPLETE                                       ║")
+    print(f"║  Sent: {str(sent).ljust(8)} Failed: {str(failed).ljust(8)} Total: {str(total).ljust(10)} ║")
+    print(f"║  Finished: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}                         ║")
+    print("╚══════════════════════════════════════════════════════════╝")
+
+if __name__ == "__main__":
+    run()
+`;
+
+  document.getElementById('codeOutput').textContent = code;
+  document.getElementById('outputSection').style.display = 'block';
+  document.getElementById('outputSection').scrollIntoView({ behavior:'smooth' });
+  sessionSent = emails.length;
+  updateStats();
+  i();
+}
+
+function copyCode(){
+  const code = document.getElementById('codeOutput').textContent;
+  navigator.clipboard.writeText(code);
+  const btn = document.getElementById('copyBtn');
+  btn.classList.add('copied'); btn.innerHTML='<i data-lucide="check" style="width:12px;height:12px"></i> Copied!'; i();
+  setTimeout(()=>{ btn.classList.remove('copied'); btn.innerHTML='<i data-lucide="copy" style="width:12px;height:12px"></i> Copy'; i(); }, 2500);
+}
+
+// Auto-save compose fields as user types
+['cSubject','cBody','cSenderName','smtpHost','smtpPort'].forEach(id => {
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('input', saveToLS);
+});
+
+// ─── MAIL FILTER PANEL ───
+let fCleanedList = [];
+let fDupesOpen   = false;
+
+function openFilter()  {
+  document.getElementById('filterOverlay').style.display = 'block';
+  document.getElementById('filterPanel').style.display   = 'block';
+  document.body.style.overflow = 'hidden';
+  i();
+}
+function closeFilter() {
+  document.getElementById('filterOverlay').style.display = 'none';
+  document.getElementById('filterPanel').style.display   = 'none';
+  document.body.style.overflow = '';
+}
+
+function fUpdateCount() {
+  const raw = document.getElementById('fInputEmails').value;
+  const n   = raw.split(/[\n,]+/).map(e=>e.trim()).filter(e=>e.length>0).length;
+  document.getElementById('fInputCount').textContent = n;
+  i();
+}
+
+function fFilter() {
+  const raw = document.getElementById('fInputEmails').value.trim();
+  if(!raw) { fToast('Paste some emails first','alert-circle'); return; }
+  const parts = raw.split(/[\n,]+/).map(e=>e.trim().toLowerCase()).filter(e=>e.length>0);
+  let valid=[], invalid=0;
+  parts.forEach(e=>{ /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e) ? valid.push(e) : invalid++; });
+  const total=parts.length, seen={}, unique=[], dupeMap={};
+  let dupeCount=0;
+  valid.forEach(e=>{ if(seen[e]){ seen[e]++; dupeMap[e]=seen[e]; dupeCount++; } else { seen[e]=1; unique.push(e); } });
+  fCleanedList=unique;
+  const out=document.getElementById('fOutput');
+  if(unique.length>0){ out.style.color='#0a0a0a'; out.style.fontStyle='normal'; out.textContent=unique.map(e=>e+',').join('\n'); }
+  else { out.style.color='#bbb'; out.style.fontStyle='italic'; out.textContent='No valid emails found.'; }
+  document.getElementById('fOutputCount').textContent=unique.length;
+  document.getElementById('fStatTotal').textContent=total;
+  document.getElementById('fStatClean').textContent=unique.length;
+  document.getElementById('fStatDupes').textContent=dupeCount;
+  document.getElementById('fStatInvalid').textContent=invalid;
+  fRenderDupes(dupeMap,dupeCount);
+  fToast(`${unique.length} clean · ${dupeCount} dupes removed`,'check-circle-2');
+  i();
+}
+
+function fRenderDupes(map,count) {
+  const badge=document.getElementById('fDupeBadge');
+  const empty=document.getElementById('fDupEmpty');
+  const btn  =document.getElementById('fToggleDupBtn');
+  const list =document.getElementById('fDupList');
+  badge.innerHTML=`<i data-lucide="x-circle" style="width:10px;height:10px;"></i> ${count} found`;
+  if(count===0){ empty.style.display='flex'; btn.style.display='none'; list.innerHTML=''; document.getElementById('fDupWrap').style.maxHeight='0'; i(); return; }
+  empty.style.display='none'; btn.style.display='flex';
+  const entries=Object.entries(map).sort((a,b)=>b[1]-a[1]);
+  list.innerHTML=`<div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#8a8a8a;margin-bottom:10px;display:flex;align-items:center;gap:6px;"><i data-lucide="repeat" style="width:11px;height:11px;"></i>${entries.length} address${entries.length>1?'es':''} appeared more than once</div>`
+    +entries.map(([email,count])=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#fff;border:1px solid #e0e0e0;border-radius:6px;margin-bottom:5px;font-family:'Courier New',monospace;font-size:0.8rem;color:#5a5a5a;"><i data-lucide="alert-circle" style="width:12px;height:12px;color:#c0392b;flex-shrink:0;"></i>${email}<span style="margin-left:auto;background:#f1f3f5;border:1px solid #e0e0e0;border-radius:20px;font-size:0.7rem;font-weight:700;color:#5a5a5a;padding:2px 8px;">×${count+1}</span></div>`).join('');
+  i();
+}
+
+function fToggleDupes() {
+  fDupesOpen=!fDupesOpen;
+  document.getElementById('fDupWrap').style.maxHeight=fDupesOpen?'400px':'0';
+  document.getElementById('fDupBtnText').textContent=fDupesOpen?'Hide':'Show';
+  document.getElementById('fDupChevron').setAttribute('data-lucide', fDupesOpen?'chevron-up':'chevron-down');
+  i();
+}
+
+function fCopyAll() {
+  if(!fCleanedList.length){ fToast('Nothing to copy — run filter first','alert-circle'); return; }
+  navigator.clipboard.writeText(fCleanedList.map(e=>e+',').join('\n')).then(()=>fToast('Copied '+fCleanedList.length+' emails','clipboard-check'));
+}
+
+function fDownloadTxt() {
+  if(!fCleanedList.length){ fToast('Nothing to download','alert-circle'); return; }
+  fTriggerDl(fCleanedList.map(e=>e+',').join('\n'),'beelzeads_clean_emails.txt','text/plain');
+  fToast('Downloaded .txt','download');
+}
+
+function fDownloadCsv() {
+  if(!fCleanedList.length){ fToast('Nothing to download','alert-circle'); return; }
+  fTriggerDl('email\n'+fCleanedList.join('\n'),'beelzeads_clean_emails.csv','text/csv');
+  fToast('Downloaded .csv','download');
+}
+
+function fTriggerDl(content,filename,type) {
+  const blob=new Blob([content],{type}); const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=filename; a.click(); URL.revokeObjectURL(a.href);
+}
+
+function fClearInput() {
+  document.getElementById('fInputEmails').value='';
+  document.getElementById('fInputCount').textContent='0';
+  fToast('Input cleared','trash-2');
+}
+
+function fClearOutput() {
+  fCleanedList=[];
+  const out=document.getElementById('fOutput');
+  out.style.color='#bbb'; out.style.fontStyle='italic';
+  out.textContent='Filtered emails will appear here...';
+  document.getElementById('fOutputCount').textContent='0';
+  ['fStatTotal','fStatClean','fStatDupes','fStatInvalid'].forEach(id=>document.getElementById(id).textContent='0');
+  fRenderDupes({},0);
+  fToast('Output cleared','eraser');
+}
+
+function fSave() {
+  const val=document.getElementById('fInputEmails').value;
+  if(!val.trim()){ fToast('Nothing to save','alert-circle'); return; }
+  localStorage.setItem('beelzeads_input',val);
+  fToast('Saved to browser storage','save');
+}
+
+function fLoad() {
+  const val=localStorage.getItem('beelzeads_input');
+  if(val){ document.getElementById('fInputEmails').value=val; fUpdateCount(); fToast('Loaded from storage','folder-open'); }
+  else { fToast('No saved data found','alert-circle'); }
+}
+
+function fToast(msg,icon='check-circle') {
+  // Re-use the existing showToast if available in same scope
+  // otherwise use simple alert fallback
+  if(typeof showToast==='function') { showToast(msg,icon); }
+}
+
+// Add slide-up animation
+const filterStyle=document.createElement('style');
+filterStyle.textContent='@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}';
+document.head.appendChild(filterStyle);
+
+/* ─── BeelzeAds animated title ─── */
+const BEELZE_LETTERS = ['B','e','e','l','z','e','A','d','s'];
+let beelzeTimer = null;
+
+function startBeelzeAnim() {
+  const el = document.getElementById('pageTitle');
+  el.style.fontVariantNumeric = 'tabular-nums';
+  let step = 0;
+
+  function tick() {
+    // Show letters one block at a time, cycling
+    const shown = BEELZE_LETTERS.slice(0, (step % (BEELZE_LETTERS.length + 3)) + 1);
+    if (shown.length > BEELZE_LETTERS.length) {
+      // Full word — fade hold then reset
+      el.style.opacity = '1';
+      el.textContent = 'BeelzeAds';
+      step = 0;
+    } else {
+      el.style.opacity = String(0.4 + (shown.length / BEELZE_LETTERS.length) * 0.6);
+      el.textContent = shown.join('');
+    }
+    step++;
+    beelzeTimer = setTimeout(tick, step % (BEELZE_LETTERS.length + 3) === 0 ? 3000 : 320);
+  }
+
+  stopBeelzeAnim();
+  tick();
+}
+
+function stopBeelzeAnim() {
+  if (beelzeTimer) { clearTimeout(beelzeTimer); beelzeTimer = null; }
+  document.getElementById('pageTitle').style.opacity = '1';
+}
+
+// Start anim only when admin opens the app
+// startBeelzeAnim(); — removed, now called only from openAdminGate()
+
+
+function toggleImgPanel() {
+  const panel   = document.getElementById('imgPanel');
+  const chevron = document.getElementById('imgChevron');
+  const open    = panel.style.display === 'block';
+  panel.style.display   = open ? 'none' : 'block';
+  chevron.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
+  i();
+}
+
+function toggleUrlInput() {
+  const wrap = document.getElementById('urlInputWrap');
+  wrap.style.display = wrap.style.display === 'block' ? 'none' : 'block';
+  i();
+}
+
+
+
+// ─── BEELZEADS BANNER SYSTEM (TV Channel Style) ───
+const FIREBASE_BANNER_URL = 'https://streamx-a4099-default-rtdb.firebaseio.com/beelzeBanners.json';
+let campaigns = JSON.parse(localStorage.getItem('beelzeCampaigns') || '[]');
+let bizImages = []; // temp images while adding a business
+
+function addBizImgUrl() {
+  const url = document.getElementById('bizImgUrlInput').value.trim();
+  if (!url) return;
+  bizImages.push(url);
+  document.getElementById('bizImgUrlInput').value = '';
+  renderBizImgGrid();
+}
+
+async function uploadBizImages(files) {
+  const status = document.getElementById('bizUploadStatus');
+  status.style.display = 'block';
+  for (const file of files) {
+    status.textContent = `Uploading ${file.name}...`;
+    const form = new FormData(); form.append('image', file);
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: form });
+    const data = await res.json();
+    if (data.success) { bizImages.push(data.data.url); renderBizImgGrid(); }
+  }
+  status.textContent = '✅ Done!';
+  setTimeout(() => { status.style.display = 'none'; }, 2000);
+}
+
+function renderBizImgGrid() {
+  const grid = document.getElementById('bizImgGrid');
+  grid.innerHTML = bizImages.map((url, idx) => `
+    <div style="position:relative;border-radius:10px;overflow:hidden;background:#f3f4f6;">
+      <img src="${url}" style="width:100%;height:70px;object-fit:cover;display:block;">
+      <button onclick="bizImages.splice(${idx},1);renderBizImgGrid()" style="position:absolute;top:3px;right:3px;background:rgba(0,0,0,0.6);border:none;border-radius:50%;width:20px;height:20px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;line-height:1;">✕</button>
+    </div>`).join('');
+}
+
+function addCampaign() {
+  const name   = document.getElementById('bizName').value.trim();
+  const slogan = document.getElementById('bizSlogan').value.trim();
+  const url    = document.getElementById('bizUrl').value.trim();
+  const phone  = document.getElementById('bizPhone').value.trim();
+  const err    = document.getElementById('bizFormError');
+  if (!name) { err.style.display='block'; err.textContent='Business name is required.'; return; }
+  if (bizImages.length === 0) { err.style.display='block'; err.textContent='Add at least one image.'; return; }
+  err.style.display = 'none';
+  campaigns.push({ id: 'biz_'+Date.now(), name, slogan, url: url.startsWith('http')?url:(url?'https://'+url:''), phone, images: [...bizImages], createdAt: Date.now() });
+  bizImages = [];
+  renderBizImgGrid();
+  document.getElementById('bizName').value = '';
+  document.getElementById('bizSlogan').value = '';
+  document.getElementById('bizUrl').value = '';
+  document.getElementById('bizPhone').value = '';
+  saveCampaigns();
+  renderBannerList();
+}
+
+async function saveCampaigns() {
+  localStorage.setItem('beelzeCampaigns', JSON.stringify(campaigns));
+  try {
+    await fetch(FIREBASE_BANNER_URL, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(campaigns) });
+  } catch(e) { console.error('Firebase save error', e); }
+}
+
+
+function openAdminGate() {
+  document.getElementById('adminGateOverlay').style.display = 'block';
+  document.getElementById('adminGateModal').style.display = 'block';
+  setTimeout(() => document.getElementById('adminPwInput').focus(), 100);
+  i();
+}
+function closeAdminGate() {
+  document.getElementById('adminGateOverlay').style.display = 'none';
+  document.getElementById('adminGateModal').style.display = 'none';
+  document.getElementById('adminPwInput').value = '';
+  document.getElementById('adminPwError').style.display = 'none';
+}
+
+
+function checkAdminPw(){
+  const val = document.getElementById('adminPwInput').value;
+  if(val === 'VNAXXTTM'){
+    closeAdminGate();
+    // Hide public gate, show admin app
+    document.getElementById('publicGate').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    loadFromLS();
+    renderEmails();
+    renderAccounts();
+    renderProxies();
+    renderDomains();
+    renderBannerList();
+    startBeelzeAnim();
+    i();
+  } else {
+    document.getElementById('adminPwError').style.display = 'flex';
+    document.getElementById('adminPwInput').value = '';
+    document.getElementById('adminPwInput').focus();
+  }
+}
+
+
+function renderBannerList() {
+  const list = document.getElementById('bannerList');
+  const count = document.getElementById('bannerCount');
+  if (!list) return;
+  count.textContent = campaigns.length;
+  if (!campaigns.length) {
+    list.innerHTML = `<div style="background:#f3f4f6;border:1px solid #e5e7eb;border-radius:12px;padding:32px;text-align:center;color:#9ca3af;font-size:0.82rem;">No businesses yet — add your first one above</div>`;
+    i(); return;
+  }
+  list.innerHTML = campaigns.map((c, idx) => `
+    <div style="background:#fff;border-radius:14px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,0.07);">
+      <div style="display:flex;gap:6px;padding:10px 14px 6px;overflow-x:auto;">
+        ${c.images.map(img=>`<img src="${img}" style="width:70px;height:50px;object-fit:cover;border-radius:8px;flex-shrink:0;">`).join('')}
+      </div>
+      <div style="padding:10px 14px 14px;">
+        <div style="font-size:0.92rem;font-weight:800;color:#111;">${c.name}</div>
+        <div style="font-size:0.75rem;color:#888;margin-bottom:8px;">${c.slogan||''} ${c.url ? '· <a href="'+c.url+'" target="_blank" style="color:#6366f1;">'+c.url+'</a>' : ''}</div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="editCampaign(${idx})" style="flex:1;padding:8px;background:#ede9fe;color:#6366f1;border:none;border-radius:8px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">✏️ Edit</button>
+          <button onclick="deleteCampaign(${idx})" style="flex:1;padding:8px;background:#fee2e2;color:#ef4444;border:none;border-radius:8px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">🗑 Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  i();
+}
+
+function editCampaign(idx) {
+  const c = campaigns[idx];
+  document.getElementById('bizName').value   = c.name   || '';
+  document.getElementById('bizSlogan').value = c.slogan || '';
+  document.getElementById('bizUrl').value    = c.url    || '';
+  document.getElementById('bizPhone').value  = c.phone  || '';
+  bizImages = [...c.images];
+  renderBizImgGrid();
+  campaigns.splice(idx, 1);
+  saveCampaigns(); renderBannerList();
+  document.getElementById('bizName').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function deleteCampaign(idx) {
+  if (!confirm('Delete this business from rotation?')) return;
+  campaigns.splice(idx, 1);
+  saveCampaigns(); renderBannerList();
+}
+
+
+
+
+
+function selectSize(btn, size) {
+  document.querySelectorAll('.size-btn').forEach(b => {
+    b.style.border = '2px solid var(--border)';
+    b.style.background = 'var(--bg2)';
+    b.style.color = 'var(--text2)';
+  });
+  btn.style.border = '2px solid #6366f1';
+  btn.style.background = '#ede9fe';
+  btn.style.color = '#6366f1';
+}
+
+function selectStyle(btn, style) {
+  document.querySelectorAll('.style-btn').forEach(b => {
+    b.style.border = '2px solid var(--border)';
+    b.style.background = 'var(--bg2)';
+    b.style.color = 'var(--text2)';
+  });
+  btn.style.border = '2px solid #6366f1';
+  btn.style.background = '#ede9fe';
+  btn.style.color = '#6366f1';
+}
+
+window.addEventListener('DOMContentLoaded', function(){
+  if (!campaigns.length) {
+    const old = JSON.parse(localStorage.getItem('beelzeBanners') || '[]');
+    if (old.length) {
+      campaigns = old.map(b => ({ id: b.id||('biz_'+Date.now()), name: b.label||'Business', slogan:'', url: b.url||'', phone: b.phone||'', images: b.img ? [b.img] : [], createdAt: b.createdAt||Date.now() }));
+      saveCampaigns(); renderBannerList();
+    }
+  }
+});
+
+// Safe init — only run stat update if app is visible
+function safeUpdateStats() {
+  const statSent = document.getElementById('statSent');
+  if (statSent) updateStats();
+}
+
+
+
+// Init icons after everything loads
+setTimeout(i, 100);
+initAppCount();
+
+// ─── BOOT SEQUENCE ───
+window.addEventListener('DOMContentLoaded', function() {
+  // Trigger splash text animation
+  setTimeout(() => {
+    document.getElementById('splashText').style.opacity = '1';
+    document.getElementById('splashText').style.transform = 'scale(1)';
+    document.getElementById('splashSub').style.opacity = '1';
+    document.getElementById('splashLine').style.transform = 'scaleX(1)';
+  }, 100);
+
+  // Hide splash and show app after 2.5 seconds
+  setTimeout(() => {
+    const splash = document.getElementById('splash');
+    splash.style.transition = 'opacity 0.5s ease';
+    splash.style.opacity = '0';
+    setTimeout(() => {
+      splash.style.display = 'none';
+      // Show PUBLIC gate by default — not admin
+      document.getElementById('publicGate').style.display = 'flex';
+      i();
+    }, 500);
+  }, 2500);
+});
+
+
+</script>
+</body>
+</html>
