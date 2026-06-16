@@ -2736,32 +2736,33 @@ function mgGenerateFromCanvas() {
     const appImg = 'https://media.base44.com/images/public/6a2f600ea3ee318e60f8e581/364ec16c5_Notes_260610_141627_261.jpg';
     const chatImg = 'https://media.base44.com/images/public/6a2f600ea3ee318e60f8e581/11f9d97f3_Notes_260517_051334_92c.png';
     const moyaImg = 'https://media.base44.com/images/public/6a2f600ea3ee318e60f8e581/6850ba5d0_images.png';
-    let moyaLink = 'https://moya.app';
-    const moyaLinkEl = document.getElementById('footerMoyaLink');
-    if (moyaLinkEl && moyaLinkEl.value.trim()) { moyaLink = moyaLinkEl.value.trim(); }
-    footerCodeHtml = `        <tr><td style="background:#0A0A0B;padding:18px;">
-          <table width="100%" cellpadding="0" cellspacing="0"><tr>
-            <td align="center" width="33%" style="padding:6px;">
-              <a href="https://beelzechat.beelzeapps.co.za" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
-                <img src="${chatImg}" style="width:34px;height:34px;border-radius:50%;border:2px solid #CCFF00;object-fit:cover;" alt="Beelzechat"/><br/>
-                <span style="font-size:9px;color:#CCFF00;font-family:Arial,sans-serif;font-weight:bold;">Find us on Beelzechat</span>
-              </a>
-            </td>
-            <td align="center" width="33%" style="padding:6px;">
-              <a href="${moyaLink || 'https://moya.app'}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
-                <img src="${moyaImg}" style="width:34px;height:34px;border-radius:10px;border:2px solid #CCFF00;object-fit:cover;" alt="Moya App"/><br/>
-                <span style="font-size:9px;color:#F4F4F9;font-family:Arial,sans-serif;font-weight:bold;">On Moya App</span>
-              </a>
-            </td>
-            <td align="center" width="33%" style="padding:6px;">
-              <a href="https://beelzeapps.co.za" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
-                <img src="${appImg}" style="width:34px;height:34px;border-radius:8px;object-fit:cover;" alt="Download our app"/><br/>
-                <span style="font-size:9px;color:#CCFF00;font-family:Arial,sans-serif;font-weight:bold;">Download our app</span>
-              </a>
-            </td>
-          </tr></table>
-          <p style="font-size:10px;color:#bbb;text-align:center;margin:10px 0 0;font-family:Arial,sans-serif;">BeelzeAds &middot; <a href="mailto:${fromEmail}?subject=Unsubscribe" style="color:#bbb;">Unsubscribe</a></p>
+    let moyaPhone = '';
+const moyaPhoneEl = document.getElementById('footerMoyaPhone');
+if (moyaPhoneEl && moyaPhoneEl.value.trim()) { moyaPhone = moyaPhoneEl.value.trim(); }
+
+    
+    footerCodeHtml = `        <tr><td style="background:#f5f5f5;padding:18px;">
+          <div style="background:#f5f5f5;border-radius:8px;padding:12px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+            <a href="https://beelzeapps.co.za" target="_blank" rel="noopener noreferrer" style="display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none;flex:1;">
+              <img src="${appImg}" style="height:36px;border-radius:8px;object-fit:contain;max-width:80px;" alt="Download Our App"/>
+              <span style="font-size:9px;color:#666;font-weight:600;font-family:Arial,sans-serif;">Download Our App</span>
+            </a>
+            <div style="width:1px;height:50px;background:#ddd;flex-shrink:0;"></div>
+            <a href="https://beelzechat.beelzeapps.co.za" target="_blank" rel="noopener noreferrer" style="display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none;flex:1;">
+              <img src="${chatImg}" style="width:38px;height:38px;border-radius:50%;object-fit:contain;border:2px solid #e0e0e0;" alt="Beelzechat"/>
+              <span style="font-size:9px;color:#666;font-weight:600;font-family:Arial,sans-serif;">Find us on Beelzechat</span>
+            </a>
+            <div style="width:1px;height:50px;background:#ddd;flex-shrink:0;"></div>
+      <a href="${(document.getElementById('footerMoyaLink') ? document.getElementById('footerMoyaLink').value.trim() : '') || 'https://moya.app'}" target="_blank" rel="noopener noreferrer" style="display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none;flex:1;">
+              <img src="${moyaImg}" style="width:38px;height:38px;border-radius:10px;object-fit:contain;border:2px solid #e0e0e0;" alt="Moya App"/>
+              <span style="font-size:9px;color:#666;font-weight:600;font-family:Arial,sans-serif;">Find us on Moya App</span>
+              ${moyaPhone ? `<span style="font-size:10px;color:#111;font-weight:700;font-family:Arial,sans-serif;margin-top:1px;">${moyaPhone}</span>` : ''}
+            </a>
+          </div>
+          <p style="font-size:10px;color:#bbb;text-align:center;margin:8px 0 0;font-family:Arial,sans-serif;">BeelzeAds &middot; <a href="mailto:${fromEmail}?subject=Unsubscribe" style="color:#bbb;">Unsubscribe</a></p>
         </td></tr>`;
+        
+        
   } else {
     const footerTextEl = document.getElementById('mgFooterText');
     const footerText = footerTextEl ? footerTextEl.value : '© 2025 BeelzeAds. All rights reserved.';
@@ -2961,6 +2962,12 @@ function syncCanvasBodyFromEditor() {
     el.style.lineHeight = '1.7';
     el.style.whiteSpace = 'pre-wrap';
     el.textContent = bodyText;
+    // Restore textAlign from saved canvas data if available
+    var savedElements = JSON.parse(localStorage.getItem('beelze_canvas_elements') || '[]');
+    var savedBody = savedElements.find(function(s){ return s.id === 'ce_body_synced'; });
+    if (savedBody && savedBody.textAlign) {
+      el.style.textAlign = savedBody.textAlign;
+    }
     el.addEventListener('mousedown', canvasElementMouseDown);
     el.addEventListener('click', function(e) { if (isDragging) return; e.stopPropagation(); openTextEditPopup(id); });
     canvas.appendChild(el);
@@ -3116,6 +3123,7 @@ if (ft === 'branded') {
       moyaPhone = moyaPhoneEl.value.trim();
     }
 
+
     footer.innerHTML =
       '<div style="background:#f5f5f5;border-radius:8px;padding:12px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">' +
 
@@ -3125,6 +3133,7 @@ if (ft === 'branded') {
       '</a>' +
 
       '<div style="width:1px;height:50px;background:#ddd;flex-shrink:0;"></div>' +
+
 
       '<a href="https://beelzechat.beelzeapps.co.za" target="_blank" rel="noopener noreferrer" style="display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none;flex:1;">' +
       '<img src="' + chatImg + '" style="width:38px;height:38px;border-radius:50%;object-fit:contain;border:2px solid #e0e0e0;" alt="Beelzechat"/>' +
