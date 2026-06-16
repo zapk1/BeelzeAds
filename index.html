@@ -1914,58 +1914,73 @@ function getSelectedCanvasData() {
   return canvasElements.find(function(e){ return e.id === canvasSelectedId; });
 }
 
+var footerOffsetY = 0;
+var ctrlRepeatTimer = null;
+
+function ctrlStartRepeat(fn) {
+  fn();
+  if (ctrlRepeatTimer) clearInterval(ctrlRepeatTimer);
+  ctrlRepeatTimer = setInterval(fn, 30);
+  canvasSaveState();
+}
+function ctrlStopRepeat() {
+  if (ctrlRepeatTimer) { clearInterval(ctrlRepeatTimer); ctrlRepeatTimer = null; }
+  canvasSavePreviewData();
+}
+
 function ctrlMoveUp() {
   if (canvasSelectedId === 'canvasFooter') {
     var footer = document.getElementById('canvasFooter');
-    var match = (footer.style.transform || '').match(/translateY\((-?\d+)px\)/);
-    var cur = match ? parseInt(match[1]) : 0;
-    footer.style.transform = 'translateY(' + (cur - 20) + 'px)';
+    var spacer = document.getElementById('canvasSpacer');
+    var cur = parseInt(footer.style.marginTop) || 0;
+    footer.style.marginTop = (cur - 12) + 'px';
+    if (spacer) spacer.style.minHeight = (200 + cur - 12) + 'px';
     return;
-}
+  }
   var el = getSelectedCanvasElement();
   if (!el) return;
-  canvasSaveState();
-
   var curY = parseFloat(el.style.top) || 0;
-  var nextY = Math.max(0, curY - 20);
-
+  var nextY = Math.max(0, curY - 12);
   el.style.top = nextY + 'px';
   updateCanvasElement(canvasSelectedId, { y: nextY });
-  canvasSavePreviewData();
 }
 
 function ctrlMoveDown() {
   if (canvasSelectedId === 'canvasFooter') {
     var footer = document.getElementById('canvasFooter');
-    var match = (footer.style.transform || '').match(/translateY\((-?\d+)px\)/);
-    var cur = match ? parseInt(match[1]) : 0;
-    footer.style.transform = 'translateY(' + (cur + 20) + 'px)';
+    var spacer = document.getElementById('canvasSpacer');
+    var cur = parseInt(footer.style.marginTop) || 0;
+    footer.style.marginTop = (cur + 12) + 'px';
+    if (spacer) spacer.style.minHeight = (200 + cur + 12) + 'px';
     return;
-}
+  }
   var el = getSelectedCanvasElement();
   if (!el) return;
-  canvasSaveState();
-
   var curY = parseFloat(el.style.top) || 0;
-  var nextY = curY + 20;
-
+  var nextY = curY + 12;
   el.style.top = nextY + 'px';
   updateCanvasElement(canvasSelectedId, { y: nextY });
-  canvasSavePreviewData();
 }
-
 
 function ctrlMoveLeft() {
   var el = getSelectedCanvasElement();
   if (!el) return;
-  canvasSaveState();
-
   var curX = parseFloat(el.style.left) || 0;
-  var nextX = Math.max(0, curX - 20);
-
+  var nextX = Math.max(0, curX - 12);
   el.style.left = nextX + 'px';
   updateCanvasElement(canvasSelectedId, { x: nextX });
-  canvasSavePreviewData();
+}
+
+function ctrlMoveRight() {
+  var el = getSelectedCanvasElement();
+  var canvas = document.getElementById('emailCanvas');
+  if (!el || !canvas) return;
+  var curX = parseFloat(el.style.left) || 0;
+  var elWidth = el.offsetWidth || 80;
+  var maxX = Math.max(0, canvas.clientWidth - elWidth);
+  var nextX = Math.min(maxX, curX + 12);
+  el.style.left = nextX + 'px';
+  updateCanvasElement(canvasSelectedId, { x: nextX });
 }
 
 function ctrlMoveRight() {
@@ -2849,7 +2864,7 @@ while i < len(recipients):
         except Exception:
             print(f"  ERROR {status}: {response.text[:200]}")
 
-  
+    
     i += batch_size
     
     if i < len(recipients):
