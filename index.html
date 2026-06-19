@@ -802,14 +802,13 @@ pre.code-box { color:#1e293b; background:#ffffff; font-family:'Courier New',mono
       <i data-lucide="eye" style="width:12px;height:12px;stroke-width:2.5;"></i> Show on Canvas
     </button>
 </div>
-      <div style="padding:16px;display:flex;flex-direction:column;gap:11px;">
-        <div>
-          <label style="font-size:0.68rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Mailgun API Key</label>
-          <input id="mgKey" type="password" placeholder="key-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" oninput="mgAutoSave()" style="width:100%;padding:11px 14px;border:1.5px solid #e5e5ea;border-radius:10px;font-size:0.84rem;font-family:'Courier New',monospace;outline:none;background:#fafafa;box-sizing:border-box;" onfocus="this.style.borderColor='#000'" onblur="this.style.borderColor='#e5e5ea'"/>
-        </div>
-        <div>
-          <label style="font-size:0.68rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Domain</label>
-          <input id="mgDomain" placeholder="mail.beelzeapps.co.za" value="mail.beelzeapps.co.za" oninput="mgAutoSave()" style="width:100%;padding:11px 14px;border:1.5px solid #e5e5ea;border-radius:10px;font-size:0.84rem;font-family:'Inter',sans-serif;outline:none;background:#fafafa;box-sizing:border-box;" onfocus="this.style.borderColor='#000'" onblur="this.style.borderColor='#e5e5ea'"/>
+
+<div style="padding:16px;display:flex;flex-direction:column;gap:11px;">
+        
+        <!-- SHARED SENDER SETTINGS (same for all accounts) -->
+        <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:10px 13px;display:flex;gap:7px;align-items:flex-start;margin-bottom:4px;">
+          <i data-lucide="info" style="width:12px;height:12px;color:#0284c7;flex-shrink:0;margin-top:2px;"></i>
+          <p style="font-size:0.72rem;color:#0369a1;line-height:1.5;margin:0;">Sender settings below are shared across ALL accounts. Each account only needs its own API Key + Domain.</p>
         </div>
         <div>
           <label style="font-size:0.68rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Your Email (for "from" address)</label>
@@ -825,7 +824,35 @@ pre.code-box { color:#1e293b; background:#ffffff; font-family:'Courier New',mono
             <input id="mgFromEmail" placeholder="BeelzeAds" value="BeelzeAds" oninput="mgAutoSave()" style="width:100%;padding:11px 14px;border:1.5px solid #e5e5ea;border-radius:10px;font-size:0.84rem;font-family:'Inter',sans-serif;outline:none;background:#fafafa;box-sizing:border-box;" onfocus="this.style.borderColor='#000'" onblur="this.style.borderColor='#e5e5ea'"/>
           </div>
         </div>
+
+        <!-- EMAILS PER ACCOUNT PER HOUR -->
+        <div>
+          <label style="font-size:0.68rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Emails Per Account Per Hour</label>
+          <input id="mgEmailsPerHour" type="number" value="100" min="1" max="500" oninput="mgAutoSave()" style="width:100%;padding:11px 14px;border:1.5px solid #e5e5ea;border-radius:10px;font-size:0.84rem;font-family:'Inter',sans-serif;outline:none;background:#fafafa;box-sizing:border-box;" onfocus="this.style.borderColor='#000'" onblur="this.style.borderColor='#e5e5ea'"/>
+        </div>
+
+        <!-- MULTI-ACCOUNT SECTION -->
+        <div style="border-top:1.5px solid #e5e5ea;padding-top:14px;margin-top:6px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <i data-lucide="server" style="width:16px;height:16px;color:#000;stroke-width:2.5;"></i>
+              <span style="font-weight:700;font-size:0.88rem;">Mailgun Accounts</span>
+              <span id="mgAccountCount" style="background:#000;color:#fff;font-size:0.65rem;font-weight:700;padding:2px 7px;border-radius:20px;">0</span>
+            </div>
+            <button onclick="mgAddAccount()" style="background:#000;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:5px;">
+              <i data-lucide="plus" style="width:12px;height:12px;stroke-width:2.5;"></i> Add Account
+            </button>
+          </div>
+          <div id="mgAccountsList" style="display:flex;flex-direction:column;gap:8px;"></div>
+          <div id="mgAccountsEmpty" style="padding:24px;text-align:center;color:#bbb;font-size:0.82rem;background:#fafafa;border-radius:10px;border:1.5px dashed #e0e0e0;">
+            <i data-lucide="server" style="width:28px;height:28px;color:#d0d0d0;display:block;margin:0 auto 8px;"></i>
+            No accounts added yet — click "Add Account" above
+          </div>
+        </div>
       </div>
+
+      
+      
     </div>
 
     <!-- ══ SECTION 1: COLOR PICKERS ══ -->
@@ -1602,7 +1629,7 @@ function closeMg() {
 }
 
 function mgAutoSave() {
-    ['mgKey','mgDomain','mgYourEmail','mgFromName','mgFromEmail','mgSubject','mgBody','mgRecip','mgCtaUrl','mgCtaText','footerMoyaLink','footerMoyaPhone','mgBatchMin','mgBatchMax','mgDelayMin','mgDelayMax'].forEach(id => {
+    ['mgKey','mgDomain','mgYourEmail','mgFromName','mgFromEmail','mgSubject','mgBody','mgRecip','mgCtaUrl','mgCtaText','footerMoyaLink','footerMoyaPhone','mgBatchMin','mgBatchMax','mgDelayMin','mgDelayMax','mgEmailsPerHour'].forEach(id => {
     const el = document.getElementById(id);
     if (el) localStorage.setItem('beelze_' + id, el.value);
   });
@@ -1611,7 +1638,7 @@ function mgAutoSave() {
 }
 
 function mgLoadSaved() {
-  ['mgKey','mgDomain','mgYourEmail','mgFromName','mgFromEmail','mgSubject','mgBody','mgRecip','mgCtaUrl','mgCtaText','footerMoyaLink','footerMoyaPhone','mgBatchMin','mgBatchMax','mgDelayMin','mgDelayMax'].forEach(id => {
+  ['mgKey','mgDomain','mgYourEmail','mgFromName','mgFromEmail','mgSubject','mgBody','mgRecip','mgCtaUrl','mgCtaText','footerMoyaLink','footerMoyaPhone','mgBatchMin','mgBatchMax','mgDelayMin','mgDelayMax','mgEmailsPerHour'].forEach(id => {
     const el = document.getElementById(id);
     const v = localStorage.getItem('beelze_' + id);
     if (el && v) el.value = v;
@@ -1931,10 +1958,11 @@ function ctrlStopRepeat() {
 function ctrlMoveUp() {
   if (canvasSelectedId === 'canvasFooter') {
     var footer = document.getElementById('canvasFooter');
-    var spacer = document.getElementById('canvasSpacer');
-    var cur = parseInt(footer.style.marginTop) || 0;
-    footer.style.marginTop = (cur - 12) + 'px';
-    if (spacer) spacer.style.minHeight = (200 + cur - 12) + 'px';
+    var cur = parseInt(footer.getAttribute('data-margin-top') || '0');
+    var next = cur - 12;
+    footer.style.marginTop = next + 'px';
+    footer.setAttribute('data-margin-top', next);
+    localStorage.setItem('beelze_footer_margin_top', next);
     return;
   }
   var el = getSelectedCanvasElement();
@@ -1948,10 +1976,11 @@ function ctrlMoveUp() {
 function ctrlMoveDown() {
   if (canvasSelectedId === 'canvasFooter') {
     var footer = document.getElementById('canvasFooter');
-    var spacer = document.getElementById('canvasSpacer');
-    var cur = parseInt(footer.style.marginTop) || 0;
-    footer.style.marginTop = (cur + 12) + 'px';
-    if (spacer) spacer.style.minHeight = (200 + cur + 12) + 'px';
+    var cur = parseInt(footer.getAttribute('data-margin-top') || '0');
+    var next = cur + 12;
+    footer.style.marginTop = next + 'px';
+    footer.setAttribute('data-margin-top', next);
+    localStorage.setItem('beelze_footer_margin_top', next);
     return;
   }
   var el = getSelectedCanvasElement();
@@ -2713,12 +2742,9 @@ function canvasLoadSaved() {
 
 // ── GENERATE HTML FROM CANVAS ──
 function mgGenerateFromCanvas() {
-  const key = document.getElementById('mgKey') ? document.getElementById('mgKey').value.trim() : '';
-  const domain = document.getElementById('mgDomain') ? (document.getElementById('mgDomain').value.trim() || 'mail.beelzeapps.co.za') : 'mail.beelzeapps.co.za';
   const fromName = document.getElementById('mgFromName') ? (document.getElementById('mgFromName').value.trim() || 'Dark Master Store') : 'Dark Master Store';
   const fromPrefix = document.getElementById('mgFromEmail') ? (document.getElementById('mgFromEmail').value.trim() || 'BeelzeAds') : 'BeelzeAds';
   const yourEmailField = document.getElementById('mgYourEmail') ? document.getElementById('mgYourEmail').value.trim() : '';
-  const fromEmail = yourEmailField || (fromPrefix + '@' + domain);
   const raw = document.getElementById('mgRecip') ? document.getElementById('mgRecip').value : '';
   const recips = [...new Set(raw.split(/[\n,;]+/).map(e=>e.trim().toLowerCase()).filter(e=>e.includes('@')))];
   const recipsPy = recips.length ? '[\n' + recips.map(e=>`    "${e}"`).join(',\n') + '\n]' : '["recipient@example.com"]';
@@ -2737,38 +2763,41 @@ function mgGenerateFromCanvas() {
     const chatImg = 'https://media.base44.com/images/public/6a2f600ea3ee318e60f8e581/11f9d97f3_Notes_260517_051334_92c.png';
     const moyaImg = 'https://media.base44.com/images/public/6a2f600ea3ee318e60f8e581/6850ba5d0_images.png';
     let moyaPhone = '';
-const moyaPhoneEl = document.getElementById('footerMoyaPhone');
-if (moyaPhoneEl && moyaPhoneEl.value.trim()) { moyaPhone = moyaPhoneEl.value.trim(); }
-
+    const moyaPhoneEl = document.getElementById('footerMoyaPhone');
+    if (moyaPhoneEl && moyaPhoneEl.value.trim()) { moyaPhone = moyaPhoneEl.value.trim(); }
+    
+    // Build fromEmail for unsubscribe link - use first account domain if available
+    const firstDomain = (mgAccounts.length > 0 && mgAccounts[0].domain) ? mgAccounts[0].domain : 'mail.beelzeapps.co.za';
+    const footerFromEmail = yourEmailField || (fromPrefix + '@' + firstDomain);
     
     footerCodeHtml = `        <tr><td style="background:#f5f5f5;padding:18px;">
           <div style="background:#f5f5f5;border-radius:8px;padding:12px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
-            <a href="https://beelzeapps.co.za" target="_blank" rel="noopener noreferrer" style="display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none;flex:1;">
+            <a href__="https://beelzeapps.co.za" target="_blank" rel="noopener noreferrer" style="display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none;flex:1;">
               <img src="${appImg}" style="height:36px;border-radius:8px;object-fit:contain;max-width:80px;" alt="Download Our App"/>
               <span style="font-size:9px;color:#666;font-weight:600;font-family:Arial,sans-serif;">Download Our App</span>
             </a>
             <div style="width:1px;height:50px;background:#ddd;flex-shrink:0;"></div>
-            <a href="https://beelzechat.beelzeapps.co.za" target="_blank" rel="noopener noreferrer" style="display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none;flex:1;">
+            <a href__="https://beelzechat.beelzeapps.co.za" target="_blank" rel="noopener noreferrer" style="display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none;flex:1;">
               <img src="${chatImg}" style="width:38px;height:38px;border-radius:50%;object-fit:contain;border:2px solid #e0e0e0;" alt="Beelzechat"/>
               <span style="font-size:9px;color:#666;font-weight:600;font-family:Arial,sans-serif;">Find us on Beelzechat</span>
             </a>
             <div style="width:1px;height:50px;background:#ddd;flex-shrink:0;"></div>
-      <a href="${(document.getElementById('footerMoyaLink') ? document.getElementById('footerMoyaLink').value.trim() : '') || 'https://moya.app'}" target="_blank" rel="noopener noreferrer" style="display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none;flex:1;">
+      <a href__="${(document.getElementById('footerMoyaLink') ? document.getElementById('footerMoyaLink').value.trim() : '') || 'https://moya.app'}" target="_blank" rel="noopener noreferrer" style="display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none;flex:1;">
               <img src="${moyaImg}" style="width:38px;height:38px;border-radius:10px;object-fit:contain;border:2px solid #e0e0e0;" alt="Moya App"/>
               <span style="font-size:9px;color:#666;font-weight:600;font-family:Arial,sans-serif;">Find us on Moya App</span>
               ${moyaPhone ? `<span style="font-size:10px;color:#111;font-weight:700;font-family:Arial,sans-serif;margin-top:1px;">${moyaPhone}</span>` : ''}
             </a>
           </div>
-          <p style="font-size:10px;color:#bbb;text-align:center;margin:8px 0 0;font-family:Arial,sans-serif;">BeelzeAds &middot; <a href="mailto:${fromEmail}?subject=Unsubscribe" style="color:#bbb;">Unsubscribe</a></p>
+          <p style="font-size:10px;color:#bbb;text-align:center;margin:8px 0 0;font-family:Arial,sans-serif;">BeelzeAds &middot; <a href__="mailto:${footerFromEmail}?subject=Unsubscribe" style="color:#bbb;">Unsubscribe</a></p>
         </td></tr>`;
-        
-        
   } else {
+    const firstDomain = (mgAccounts.length > 0 && mgAccounts[0].domain) ? mgAccounts[0].domain : 'mail.beelzeapps.co.za';
+    const footerFromEmail = yourEmailField || (fromPrefix + '@' + firstDomain);
     const footerTextEl = document.getElementById('mgFooterText');
     const footerText = footerTextEl ? footerTextEl.value : '© 2025 BeelzeAds. All rights reserved.';
     footerCodeHtml = `        <tr><td style="background:#f5f5f5;padding:18px;text-align:center;">
           ${footerText.split('\\n').map(l=>`<p style="font-size:11px;color:#999999;margin:0 0 3px;font-family:Arial,sans-serif;">${l}</p>`).join('')}
-          <p style="font-size:10px;color:#bbb;margin:6px 0 0;font-family:Arial,sans-serif;">BeelzeAds &middot; <a href="mailto:${fromEmail}?subject=Unsubscribe" style="color:#bbb;">Unsubscribe</a></p>
+          <p style="font-size:10px;color:#bbb;margin:6px 0 0;font-family:Arial,sans-serif;">BeelzeAds &middot; <a href__="mailto:${footerFromEmail}?subject=Unsubscribe" style="color:#bbb;">Unsubscribe</a></p>
         </td></tr>`;
   }
   
@@ -2780,17 +2809,42 @@ if (moyaPhoneEl && moyaPhoneEl.value.trim()) { moyaPhone = moyaPhoneEl.value.tri
   
   var bodyCode = preview.bodyItems;
   
-    // Read batch/delay settings from UI
+  // Read batch/delay settings from UI
   const batchMin = parseInt(document.getElementById('mgBatchMin') ? document.getElementById('mgBatchMin').value : '3') || 3;
   const batchMax = parseInt(document.getElementById('mgBatchMax') ? document.getElementById('mgBatchMax').value : '5') || 5;
   const delayMin = parseInt(document.getElementById('mgDelayMin') ? document.getElementById('mgDelayMin').value : '30') || 30;
   const delayMax = parseInt(document.getElementById('mgDelayMax') ? document.getElementById('mgDelayMax').value : '60') || 60;
+  const emailsPerHour = parseInt(document.getElementById('mgEmailsPerHour') ? document.getElementById('mgEmailsPerHour').value : '100') || 100;
+
+  // Build accounts list for Python
+  let accountsPy = '';
+  if (mgAccounts.length > 0) {
+    accountsPy = '[\n' + mgAccounts.filter(a => a.apiKey && a.domain).map(a => 
+      `    {"api_key": "${a.apiKey}", "domain": "${a.domain}"}`
+    ).join(',\n') + '\n]';
+  } else {
+    accountsPy = `[{"api_key": "YOUR_API_KEY", "domain": "mail.yourdomain.com"}]`;
+  }
 
   const code = `import requests
+import random
+import time
+import math
 
-API_KEY = "${key || 'YOUR_MAILGUN_API_KEY'}"
-DOMAIN = "${domain}"
-YOUR_EMAIL = "${fromEmail}"
+# ═══════════════════════════════════════════════════════════
+# MAILGUN MULTI-ACCOUNT EMAIL SENDER
+# Each account sends ${emailsPerHour} emails per hour max
+# Accounts rotate, then wait for the hour to finish
+# ═══════════════════════════════════════════════════════════
+
+# ── ACCOUNTS (API Key + Domain only — sender info is shared) ──
+ACCOUNTS = ${accountsPy}
+
+# ── SHARED SENDER SETTINGS (same for all accounts) ──
+FROM_NAME = "${fromName}"
+FROM_PREFIX = "${fromPrefix}"
+YOUR_EMAIL = "${yourEmailField || ''}"
+EMAILS_PER_ACCOUNT_PER_HOUR = ${emailsPerHour}
 
 html_template = """
 <!DOCTYPE html>
@@ -2813,72 +2867,150 @@ ${footerCodeHtml}
 </html>
 """
 
-import random
-import time
-
 recipients = ${recipsPy}
 
-print(f"Total recipients: {len(recipients)}")
-print(f"Sending in random batches of ${batchMin}-${batchMax} with ${delayMin}-${delayMax}s delays...")
-print("="*50)
+total_emails = len(recipients)
+num_accounts = len(ACCOUNTS)
 
-batch_num = 0
-sent_count = 0
-i = 0
+print(f"{'='*60}")
+print(f"BEELZEADS MULTI-ACCOUNT SENDER")
+print(f"{'='*60}")
+print(f"Total recipients: {total_emails}")
+print(f"Active accounts: {num_accounts}")
+print(f"Emails per account per hour: {EMAILS_PER_ACCOUNT_PER_HOUR}")
+print(f"Batch size: ${batchMin}-${batchMax} random")
+print(f"Delay between batches: ${delayMin}-${delayMax}s random")
+print(f"{'='*60}")
 
-while i < len(recipients):
-    batch_size = random.randint(${batchMin}, ${batchMax})
-    batch = recipients[i:i + batch_size]
-    batch_num += 1
-    
-    print(f"\\nBatch {batch_num}: Sending to {len(batch)} recipients...")
-    
-    response = requests.post(
-        f"https://api.mailgun.net/v3/{DOMAIN}/messages",
-        auth=("api", API_KEY),
-        data={
-            "from": f"${fromName} <${fromPrefix}@{DOMAIN}>",
-            "to": "${fromEmail}",
-            "bcc": batch,
-            "subject": "${subject}",
-            "html": html_template,
-        },
-    )
-    
-    status = response.status_code
-    
-    if status == 200:
-        try:
-            result = response.json()
-            msg_id = result.get("id", "unknown")
-            print(f"  Status: {status} - Queued")
-            print(f"  Message: {result.get('message', '')}")
-            print(f"  ID: {msg_id}")
-            sent_count += len(batch)
-        except Exception:
-            print(f"  Status: {status} - Queued (no JSON)")
-            sent_count += len(batch)
-    else:
-        try:
-            err = response.json()
-            print(f"  ERROR {status}: {err}")
-        except Exception:
-            print(f"  ERROR {status}: {response.text[:200]}")
+# ── RESUME FROM CRASH: load last saved position ──
+try:
+    with open("beelzeads_progress.txt", "r") as pf:
+        saved_index = int(pf.read().strip())
+        if 0 < saved_index < total_emails:
+            print(f"♻️  Resuming from saved position: email #{saved_index + 1}")
+            email_index = saved_index
+        else:
+            email_index = 0
+except FileNotFoundError:
+    email_index = 0  # No saved progress, start fresh
 
-    
-    i += batch_size
-    
-    if i < len(recipients):
-        delay = random.randint(${delayMin}, ${delayMax})
-        print(f"  Waiting {delay} seconds before next batch...")
-        time.sleep(delay)
+total_sent = 0
+hour_round = 0
 
-print("\\n" + "="*50)
-print(f"DONE! Sent {sent_count}/{len(recipients)} emails in {batch_num} batches.")
+while email_index < total_emails:
+    hour_round += 1
+    hour_start = time.time()
+    print(f"\\n{'━'*60}")
+    print(f"⏰ HOUR ROUND {hour_round} — Starting at email #{email_index + 1}")
+    print(f"{'━'*60}")
+
+    for acc_idx, account in enumerate(ACCOUNTS):
+        if email_index >= total_emails:
+            break
+
+        api_key = account["api_key"]
+        domain = account["domain"]
+        from_email = YOUR_EMAIL if YOUR_EMAIL else f"{FROM_PREFIX}@{domain}"
+
+        emails_this_account = 0
+        acc_batch_num = 0
+
+        print(f"\\n🔑 Account {acc_idx + 1}/{num_accounts} — Domain: {domain}")
+        print(f"   Sending up to {EMAILS_PER_ACCOUNT_PER_HOUR} emails...")
+
+        while emails_this_account < EMAILS_PER_ACCOUNT_PER_HOUR and email_index < total_emails:
+            batch_size = random.randint(3, 5)
+            remaining_for_account = EMAILS_PER_ACCOUNT_PER_HOUR - emails_this_account
+            remaining_total = total_emails - email_index
+            batch_size = min(batch_size, remaining_for_account, remaining_total)
+
+            if batch_size <= 0:
+                break
+
+            batch = recipients[email_index:email_index + batch_size]
+            acc_batch_num += 1
+
+            print(f"   Batch {acc_batch_num}: Sending {len(batch)} emails (#{email_index + 1} to #{email_index + len(batch)})...")
+
+            try:
+                response = requests.post(
+                    f"https://api.mailgun.net/v3/{domain}/messages",
+                    auth=("api", api_key),
+                    data={
+                        "from": f"{FROM_NAME} <{from_email}>",
+                        "to": from_email,
+                        "bcc": batch,
+                        "subject": "BeelzeChat South Africa platform",
+                        "html": html_template,
+                    },
+                    timeout=30,
+                )
+                status = response.status_code
+            except Exception as conn_err:
+                print(f"     ⚠️  Connection error: {conn_err} — skipping batch, will retry next round")
+                break  # Stop this account for this hour, don't advance email_index
+
+            if status == 200:
+                try:
+                    result = response.json()
+                    msg_id = result.get("id", "unknown")
+                    print(f"     ✅ Status: {status} — Queued")
+                    print(f"     Message: {result.get('message', '')}")
+                    print(f"     ID: {msg_id}")
+                except Exception:
+                    print(f"     ✅ Status: {status} — Queued (no JSON)")
+                # ✅ Only advance on SUCCESS
+                emails_this_account += len(batch)
+                total_sent += len(batch)
+                email_index += batch_size
+                # Save progress to file so we can resume if script crashes
+                with open("beelzeads_progress.txt", "w") as pf:
+                    pf.write(str(email_index))
+            elif status == 429:
+                # Rate limited — stop this account immediately, don't advance
+                print(f"     ⚠️  RATE LIMITED (429) — Account {acc_idx+1} hit limit. Stopping this account for this hour.")
+                break
+            else:
+                try:
+                    err = response.json()
+                    print(f"     ❌ ERROR {status}: {err}")
+                except Exception:
+                    print(f"     ❌ ERROR {status}: {response.text[:200]}")
+                # ❌ On error, still advance to avoid infinite loop on bad email
+                email_index += batch_size
+                print(f"     ⚠️  Skipping this batch due to error.")
+
+            # Random delay between batches (only if we're going to send more)
+            if emails_this_account < EMAILS_PER_ACCOUNT_PER_HOUR and email_index < total_emails:
+                delay = random.randint(30, 60)
+                print(f"     ⏳ Waiting {delay}s before next batch...")
+                time.sleep(delay)
+
+        print(f"   Account {acc_idx + 1} done: sent {emails_this_account} emails")
+    # All accounts have sent their share for this hour
+    # If there are still emails left, wait for the hour to complete
+    if email_index < total_emails:
+        elapsed = time.time() - hour_start
+        wait_time = max(0, 3600 - elapsed)
+        if wait_time > 0:
+            wait_mins = math.ceil(wait_time / 60)
+            print(f"\\n⏰ All accounts done for this hour.")
+            print(f"   Sent so far: {total_sent}/{total_emails}")
+            print(f"   Waiting {wait_mins} minutes for the next hour to begin...")
+            time.sleep(wait_time)
+
+print(f"\\n{'='*60}")
+print(f"✅ ALL DONE!")
+print(f"   Total sent: {total_sent}/{total_emails}")
+print(f"   Total hour rounds: {hour_round}")
+print(f"{'='*60}")
 `;
   const el = document.getElementById('mgCode');
   if (el) el.textContent = code;
 }
+
+
+
 
 function mgClearAllImgs() { mgImages = []; mgRenderGrid(); mgSaveImages(); }
 function mgSaveImages() { localStorage.setItem('beelze_mgImages', JSON.stringify(mgImages)); }
@@ -3205,6 +3337,83 @@ function mgOpenColab() {
   navigator.clipboard.writeText(document.getElementById('mgCode').textContent)
     .then(() => window.open('https://colab.new', '_blank'));
 }
+
+
+// ─── MULTI-ACCOUNT MANAGEMENT ───
+let mgAccounts = [];
+
+function mgLoadAccounts() {
+  const saved = localStorage.getItem('beelze_mgAccounts');
+  if (saved) {
+    try { mgAccounts = JSON.parse(saved); } catch(e) { mgAccounts = []; }
+  }
+  mgRenderAccounts();
+}
+
+function mgSaveAccounts() {
+  localStorage.setItem('beelze_mgAccounts', JSON.stringify(mgAccounts));
+  mgRenderAccounts();
+}
+
+function mgAddAccount() {
+  mgAccounts.push({ apiKey: '', domain: '' });
+  mgSaveAccounts();
+  // Focus the new API key input
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('.mg-account-api');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }, 100);
+}
+
+function mgRemoveAccount(idx) {
+  mgAccounts.splice(idx, 1);
+  mgSaveAccounts();
+}
+
+function mgUpdateAccount(idx, field, value) {
+  if (mgAccounts[idx]) {
+    mgAccounts[idx][field] = value;
+    localStorage.setItem('beelze_mgAccounts', JSON.stringify(mgAccounts));
+  }
+}
+
+function mgRenderAccounts() {
+  const list = document.getElementById('mgAccountsList');
+  const empty = document.getElementById('mgAccountsEmpty');
+  const badge = document.getElementById('mgAccountCount');
+  if (!list) return;
+  
+  badge.textContent = mgAccounts.length;
+  
+  if (!mgAccounts.length) {
+    list.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+    i();
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  
+  list.innerHTML = mgAccounts.map((acc, idx) => `
+    <div style="background:#fafafa;border:1.5px solid #e5e5ea;border-radius:12px;padding:12px;position:relative;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-size:0.72rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.05em;display:flex;align-items:center;gap:5px;">
+          <i data-lucide="key" style="width:11px;height:11px;"></i> Account ${idx + 1}
+        </span>
+        <button onclick="mgRemoveAccount(${idx})" style="background:#fff;color:#e74c3c;border:1.5px solid #fecaca;border-radius:6px;padding:4px 8px;font-size:0.7rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:4px;">
+          <i data-lucide="trash-2" style="width:10px;height:10px;stroke-width:2.5;"></i> Remove
+        </button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <input class="mg-account-api" type="password" placeholder="API Key: key-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" value="${acc.apiKey || ''}" oninput="mgUpdateAccount(${idx},'apiKey',this.value)" style="width:100%;padding:9px 12px;border:1.5px solid #e5e5ea;border-radius:8px;font-size:0.8rem;font-family:'Courier New',monospace;outline:none;background:#fff;box-sizing:border-box;" onfocus="this.style.borderColor='#000'" onblur="this.style.borderColor='#e5e5ea'"/>
+        <input placeholder="Domain: mail.yourdomain.com" value="${acc.domain || ''}" oninput="mgUpdateAccount(${idx},'domain',this.value)" style="width:100%;padding:9px 12px;border:1.5px solid #e5e5ea;border-radius:8px;font-size:0.8rem;font-family:'Inter',sans-serif;outline:none;background:#fff;box-sizing:border-box;" onfocus="this.style.borderColor='#000'" onblur="this.style.borderColor='#e5e5ea'"/>
+      </div>
+    </div>
+  `).join('');
+  i();
+}
+
+
+
 
 function openMailgun() { openMg(); }
 
@@ -3638,10 +3847,11 @@ window.addEventListener('DOMContentLoaded', function() {
       splash.style.display = 'none';
       document.getElementById('app').style.display = 'flex';
 
-      // 1. Load all saved data from localStorage
+            // 1. Load all saved data from localStorage
       mgLoadSaved();
+      mgLoadAccounts();
       canvasLoadSaved(); // This rebuilds the canvas from saved elements
-
+      
       // 2. Restore footer and font settings from localStorage
       const savedFooterType = localStorage.getItem('beelze_mgFooterType') || 'branded';
       setFooterType(savedFooterType, true); // Pass true to prevent re-saving
@@ -3652,10 +3862,19 @@ window.addEventListener('DOMContentLoaded', function() {
           setEmailFont(fontData.stack, fontData.label, true); // Pass true to prevent re-saving
       }
 
-      // 3. A single, clean update to render everything from the now-correct loaded state
+            // 3. A single, clean update to render everything from the now-correct loaded state
       setTimeout(() => {
         syncCanvasHeader();
         syncCanvasFooter();
+        // Restore saved footer position
+        var savedMargin = parseInt(localStorage.getItem('beelze_footer_margin_top') || '0');
+        if (savedMargin !== 0) {
+          var footer = document.getElementById('canvasFooter');
+          if (footer) {
+            footer.style.marginTop = savedMargin + 'px';
+            footer.setAttribute('data-margin-top', savedMargin);
+          }
+        }
         canvasSavePreviewData();
         i(); // Refresh icons
       }, 100);
